@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "initializedMarker": "codex-project-ops-workflow: initialized",
+  "initializedAt": "2026-06-21 19:19:48 +08:00",
+  "projectName": "Dateview",
+  "repoRoot": "D:/ToolProjects/Dateview",
+  "validateSequence": [
+    "restoreDeps",
+    "build",
+    "test",
+    "format"
+  ],
+  "operations": {
+    "envCheck": {
+      "commands": [
+        "dotnet --info"
+      ]
+    },
+    "restoreDeps": {
+      "commands": [
+        "dotnet restore Dateview.slnx"
+      ]
+    },
+    "installDeps": {
+      "commands": []
+    },
+    "build": {
+      "commands": [
+        "dotnet build Dateview.slnx --configuration Release --no-restore"
+      ]
+    },
+    "test": {
+      "commands": [
+        "dotnet test Dateview.slnx --configuration Release --no-build"
+      ]
+    },
+    "lint": {
+      "commands": []
+    },
+    "format": {
+      "commands": [
+        "dotnet format Dateview.slnx --verify-no-changes"
+      ]
+    },
+    "typecheck": {
+      "commands": []
+    },
+    "structureCheck": {
+      "commands": []
+    },
+    "codegen": {
+      "commands": []
+    },
+    "docsCheck": {
+      "commands": []
+    },
+    "smoke": {
+      "commands": [],
+      "urls": []
+    },
+    "package": {
+      "commands": [
+        "dotnet publish src\\ChinaTrayCalendar.Desktop\\ChinaTrayCalendar.Desktop.csproj --configuration Release"
+      ]
+    },
+    "releaseDryRun": {
+      "commands": []
+    }
+  },
+  "devServer": {
+    "startCommand": "",
+    "healthUrl": "",
+    "readyText": "",
+    "startupTimeoutSeconds": 30,
+    "pidFile": ".codex/project-ops-devserver.pid"
+  },
+  "forbiddenPolicy": "Do not run destructive clean/reset/deploy commands unless the user explicitly asks."
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "initializedMarker": "codex-project-git-workflow: initialized",
+  "initializedAt": "2026-06-21 19:19:48 +08:00",
+  "projectName": "Dateview",
+  "repoRoot": "D:/ToolProjects/Dateview",
+  "safeDirectory": "D:/ToolProjects/Dateview",
+  "statusCommand": "git -c safe.directory=D:/ToolProjects/Dateview status --short --branch",
+  "validationCommands": [
+    "C:\\Users\\Administrator\\.codex\\skills\\project-ops-workflow\\scripts\\ops\\Validate.cmd"
+  ],
+  "stagingPolicy": "ask each time",
+  "commitCommand": "",
+  "pushCommand": "git -c safe.directory=D:/ToolProjects/Dateview push -u origin HEAD",
+  "docsRequirement": "Keep docs updated when architecture, workflow, or public behavior changes.",
+  "forbiddenCommands": "No force-push. Do not run destructive git commands unless explicitly requested by the user."
+}

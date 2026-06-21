@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ChinaTrayCalendar.Application/ChinaTrayCalendar.Application.csproj" />
+    <Project Path="src/ChinaTrayCalendar.Desktop/ChinaTrayCalendar.Desktop.csproj" />
+    <Project Path="src/ChinaTrayCalendar.Domain/ChinaTrayCalendar.Domain.csproj" />
+    <Project Path="src/ChinaTrayCalendar.Infrastructure/ChinaTrayCalendar.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ChinaTrayCalendar.Application.Tests/ChinaTrayCalendar.Application.Tests.csproj" />
+    <Project Path="tests/ChinaTrayCalendar.Domain.Tests/ChinaTrayCalendar.Domain.Tests.csproj" />
+    <Project Path="tests/ChinaTrayCalendar.Infrastructure.Tests/ChinaTrayCalendar.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>
