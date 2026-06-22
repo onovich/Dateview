@@ -6,6 +6,7 @@
 
 执行程序员使用的完整 Goal 指南见：
 
+- [Dateview P8 Desktop UX QA Goal 模式执行指南](P8_DESKTOP_UX_QA_GOAL_MODE_EXECUTION_GUIDE.md)
 - [Dateview P0-P7 Goal 模式执行指南](P0_P7_GOAL_MODE_EXECUTION_GUIDE.md)
 
 ## 0. 会话轮定义
