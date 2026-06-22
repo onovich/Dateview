@@ -60,7 +60,7 @@
     },
     "package": {
       "commands": [
-        "dotnet publish src\\ChinaTrayCalendar.Desktop\\ChinaTrayCalendar.Desktop.csproj --configuration Release"
+        "dotnet publish src\\ChinaTrayCalendar.Desktop\\ChinaTrayCalendar.Desktop.csproj -p:PublishProfile=win-x64-folder"
       ]
     },
     "releaseDryRun": {
