@@ -37,7 +37,7 @@ public sealed class CalendarViewModelTests
     }
 
     [Fact]
-    public void CalendarPopupWindowClosesOnEscape()
+    public void CalendarPopupWindowHidesOnEscape()
     {
         Exception? exception = null;
         bool? isVisibleAfterEscape = null;
@@ -61,6 +61,7 @@ public sealed class CalendarViewModelTests
                     RoutedEvent = System.Windows.Input.Keyboard.PreviewKeyDownEvent,
                 });
                 isVisibleAfterEscape = window.IsVisible;
+                window.Close();
             }
             catch (Exception caughtException)
             {

@@ -17,7 +17,7 @@ public partial class CalendarPopupWindow
             return;
         }
 
-        Close();
+        Hide();
         e.Handled = true;
     }
 }

@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace ChinaTrayCalendar.Desktop.Tray;
 
@@ -7,6 +8,8 @@ internal sealed class TrayIconService(ITrayIconFactory trayIconFactory) : IDispo
     private const string TooltipText = "Dateview";
 
     private ITrayIcon? trayIcon;
+
+    public event EventHandler? PrimaryClick;
 
     public bool IsVisible => trayIcon?.Visible == true;
 
@@ -23,6 +26,7 @@ internal sealed class TrayIconService(ITrayIconFactory trayIconFactory) : IDispo
             return;
         }
 
+        trayIcon.MouseUp -= OnTrayIconMouseUp;
         trayIcon.Visible = false;
         trayIcon.Dispose();
         trayIcon = null;
@@ -33,7 +37,16 @@ internal sealed class TrayIconService(ITrayIconFactory trayIconFactory) : IDispo
         ITrayIcon icon = trayIconFactory.Create();
         icon.Icon = SystemIcons.Application;
         icon.Text = TooltipText;
+        icon.MouseUp += OnTrayIconMouseUp;
 
         return icon;
+    }
+
+    private void OnTrayIconMouseUp(object? sender, MouseEventArgs e)
+    {
+        if (e.Button == MouseButtons.Left)
+        {
+            PrimaryClick?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

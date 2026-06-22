@@ -11,28 +11,58 @@ namespace ChinaTrayCalendar.Desktop;
 public partial class App : System.Windows.Application
 {
     private TrayIconService? trayIconService;
+    private CalendarPopupWindow? popupWindow;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
         base.OnStartup(e);
 
         trayIconService = new TrayIconService(new NotifyIconFactory());
+        trayIconService.PrimaryClick += OnTrayIconPrimaryClick;
         trayIconService.Show();
 
-        CalendarPopupWindow window = new();
+        popupWindow = new CalendarPopupWindow();
         CalendarViewModel viewModel = CreateCalendarViewModel();
-        viewModel.CloseRequested += (_, _) => window.Close();
-        window.DataContext = viewModel;
-        MainWindow = window;
-        window.Show();
+        viewModel.CloseRequested += (_, _) => HidePopup();
+        popupWindow.DataContext = viewModel;
+        MainWindow = popupWindow;
 
         await viewModel.LoadAsync();
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
-        trayIconService?.Dispose();
+        if (trayIconService is not null)
+        {
+            trayIconService.PrimaryClick -= OnTrayIconPrimaryClick;
+            trayIconService.Dispose();
+        }
+
+        popupWindow?.Close();
         base.OnExit(e);
+    }
+
+    private void OnTrayIconPrimaryClick(object? sender, EventArgs e)
+    {
+        TogglePopup();
+    }
+
+    private void TogglePopup()
+    {
+        if (popupWindow?.IsVisible == true)
+        {
+            HidePopup();
+            return;
+        }
+
+        popupWindow?.Show();
+    }
+
+    private void HidePopup()
+    {
+        popupWindow?.Hide();
     }
 
     private static CalendarViewModel CreateCalendarViewModel()
