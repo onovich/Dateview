@@ -86,12 +86,12 @@ Compatibility matrix:
 
 ### R8 Final P10 Acceptance
 
-- [ ] Run final `Validate.cmd`.
-- [ ] Run final `Package.cmd`.
-- [ ] Run final `package-release.ps1`.
-- [ ] Confirm P10 validation document is complete.
-- [ ] Confirm ADR exists and does not implement signing/installer.
-- [ ] Record final compatibility/trust readiness status.
+- [x] Run final `Validate.cmd`.
+- [x] Run final `Package.cmd`.
+- [x] Run final `package-release.ps1`.
+- [x] Confirm P10 validation document is complete.
+- [x] Confirm ADR exists and does not implement signing/installer.
+- [x] Record final compatibility/trust readiness status.
 
 ## Round Log
 
@@ -392,8 +392,105 @@ Release artifact/hash:
 
 Commit / push:
 
-- Pending R5 commit.
+- `e9ede8f compat: add release trust ADR` pushed.
 
 Risk / blocked:
 
 - Code signing and installer decisions remain pending for PM/architecture/budget approval.
+
+### R6 - Buffer Compatibility Fix
+
+Status: NOT USED
+
+No MVP-required compatibility defect was found in R1-R5 that required a code fix.
+
+### R7 - Buffer Docs/Test Fix
+
+Status: NOT USED
+
+No additional buffer documentation, test, ADR, or release script repair was required before final validation.
+
+### R8 - Final P10 Validation
+
+Status: PASS
+
+Scope:
+
+- Ran final validation.
+- Ran final package publish.
+- Regenerated the release bundle.
+- Re-ran a source/test/script boundary scan for prohibited scope.
+- Confirmed P10 validation and ADR are complete.
+- Recorded final compatibility and trust readiness status.
+
+Final compatibility conclusion:
+
+- Current hardware live coverage: single monitor, bottom taskbar, 100% scale / 96 DPI.
+- Physical multi-monitor and non-100% DPI remain explicit coverage limitations and are not claimed as fully tested.
+- Deterministic placement tests cover bottom, top, left, right, no-taskbar-edge, and invalid-size geometry.
+- Desktop window tests cover current-DPI popup/settings construction and settings show paths.
+- No known compatibility defect remains from P10.
+
+Final trust conclusion:
+
+- Dateview remains an unsigned portable preview.
+- User docs now explain unknown-publisher, SmartScreen, and Microsoft Defender warning expectations without telling users to disable or bypass Windows security.
+- ADR `docs\adr\0001-release-trust-and-signing.md` recommends keeping unsigned portable zip for limited `0.1.0-preview` distribution and considering code signing before broader public release.
+- P10 did not buy/configure certificates, add signing, implement an installer, or add auto-update.
+
+Final artifact:
+
+```text
+D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64.zip
+```
+
+Final bundle evidence:
+
+- Version: `0.1.0-preview`
+- Zip bytes: `172421`
+- Zip SHA256: `c74b1406755b94343ad7940e2bfd2666342fd540b3b8382e27b3eb8fb9d30dff`
+- Release metadata git commit: `e9ede8f`
+
+Debug self-check:
+
+- Minimal workflow: compatibility status is explained by one available Windows 11 machine with one display, bottom taskbar, and 100% DPI, plus deterministic geometry/window tests.
+- Failure localization: remaining gaps are physical hardware coverage gaps, not known placement, package path, tray lifecycle, or documentation failures.
+- Coverage: single-screen bottom taskbar and 100% DPI have live evidence; multi-monitor, alternate physical taskbar edges, and non-100% DPI are explicitly retained as manual spot-check risks.
+- State cleanup: R8 did not mutate user settings, startup registry, taskbar position, display scale, or Windows security settings.
+
+Architecture self-check:
+
+- R8 changes validation documentation only.
+- P10 runtime code was not changed.
+- No Domain/Application/Infrastructure/Desktop business behavior changed.
+- No installer, signing implementation, auto-update, online service, telemetry, shell hook, Explorer injection, HKLM write, admin requirement, or generated artifact tracking added.
+- ADR stays as decision material and does not introduce a third-party package.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R8 start.
+- Boundary scan over `src`, `tests`, and `scripts` for prohibited scope keywords (`HKLM`, `SetWindowsHookEx`, `Shell_NotifyIcon`, telemetry, auto-update, installer/signing tools): no matches.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+  - Domain tests: `33` passed.
+  - Application tests: `21` passed.
+  - Infrastructure tests: `37` passed.
+  - Desktop tests: `38` passed.
+  - `dotnet format --verify-no-changes`: passed.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\package-release.ps1`: passed.
+- `git diff --check`: passed.
+
+Release artifact/hash:
+
+- `artifacts\release\Dateview-0.1.0-preview-win-x64.zip`
+- `c74b1406755b94343ad7940e2bfd2666342fd540b3b8382e27b3eb8fb9d30dff`
+
+Commit / push:
+
+- This R8 final validation section is committed by the final P10 completion commit and reported in the executor completion response.
+
+Risk / blocked:
+
+- Physical multi-monitor spot check remains pending for suitable hardware.
+- Physical non-100% DPI spot check remains pending for a safe manual desktop QA pass or alternate hardware/session.
+- The preview remains unsigned until PM/architecture/budget approval for code signing.
