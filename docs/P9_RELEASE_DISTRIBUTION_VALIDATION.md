@@ -83,11 +83,11 @@ artifacts\release\
 
 ### Final Distribution Acceptance
 
-- [ ] Run final `Validate.cmd`.
-- [ ] Run final `Package.cmd`.
-- [ ] Run final release bundle script.
-- [ ] Record final artifact path and SHA256.
-- [ ] Record residual risk and final release distribution status.
+- [x] Run final `Validate.cmd`.
+- [x] Run final `Package.cmd`.
+- [x] Run final release bundle script.
+- [x] Record final artifact path and SHA256.
+- [x] Record residual risk and final release distribution status.
 
 ## Residual Risk Register
 
@@ -523,8 +523,111 @@ Release artifact/hash:
 
 Commit / push:
 
-- Pending R7 commit.
+- `95b0b3e docs: finalize release notes risks` pushed.
 
 Risk / blocked:
 
 - None for R7.
+
+### R8 - Buffer
+
+Status: NOT USED
+
+No release script, path, manifest, hash, or documentation repair was needed after R7.
+
+### R9 - Startup Experience Buffer
+
+Status: NOT USED
+
+No startup/settings/package smoke repair was needed after R7. The real tray popup animation regression is covered by the existing `PopupAnimationServiceTests`, which confirm the top-level WPF `Window` no longer receives `RenderTransform`.
+
+### R10 - Final Release Distribution Validation
+
+Status: PASS
+
+Scope:
+
+- Ran the final repository validation gate.
+- Ran the final publish/package wrapper.
+- Regenerated the final portable release bundle under ignored `artifacts\release`.
+- Recalculated and matched SHA256 against the generated `.sha256.txt` file.
+- Repeated temporary unzip/run smoke from the final zip.
+- Repeated second-instance smoke from the extracted portable folder.
+- Reconfirmed relative holiday data and release manifest entries from the extracted folder.
+- Recorded final residual risks and release distribution status.
+
+Final artifact:
+
+```text
+D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64.zip
+```
+
+Final SHA256:
+
+```text
+03647806abc3dedc7606f2a1219cdbef9dd546b0d6de7e3bddf07841358fe2fc
+```
+
+Final generated sidecar files:
+
+```text
+D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64.sha256.txt
+D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64.release.json
+D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64\Dateview\release-manifest.json
+```
+
+Debug self-check:
+
+- Fresh publish path: final `Package.cmd` regenerated the `win-x64` publish output before the bundle script ran.
+- Fresh bundle path: final `package-release.ps1` generated the ignored portable folder, zip, hash file, release metadata, and app manifest.
+- Fresh unzip path: final smoke ran from `%TEMP%\Dateview-P9R10-25baf725ac244ba7a3b353e4fddc0ab5`, not from the repository or publish directory.
+- Failure localization: final checks separately covered validation, package, zip/hash, metadata, manifest, relative holiday files, primary launch, second instance, process cleanup, and temp directory cleanup.
+- File-lock timing: an initial smoke cleanup attempt hit a transient Windows executable file lock after stopping the process. The smoke was rerun with explicit process-exit waiting and delete retry; the final attempt removed the temp directory and left no process residue.
+
+Architecture self-check:
+
+- R10 changes validation documentation only.
+- Final distribution remains a portable folder/zip.
+- No installer, auto-update, online service, telemetry, shell hook, Explorer injection, HKLM write, admin requirement, or calendar feature expansion added.
+- Generated release artifacts remain under ignored `artifacts\release` and are not committed.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+  - Domain tests: `33` passed.
+  - Application tests: `21` passed.
+  - Infrastructure tests: `37` passed.
+  - Desktop tests: `38` passed.
+  - `dotnet format --verify-no-changes`: passed.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\package-release.ps1`: passed.
+- Final bundle metadata:
+  - Bundle name: `Dateview-0.1.0-preview-win-x64`
+  - Zip bytes: `172437`
+  - Metadata git commit: `95b0b3e`
+  - Manifest git commit: `95b0b3e`
+  - Manifest file count: `13`
+- Final portable smoke:
+  - Holiday `2025.json`: `33` days.
+  - Holiday `2026.json`: `39` days.
+  - Primary process id: `54900`.
+  - Second instance exit code: `0`.
+  - Temporary extraction directory removed: `true`.
+  - Running Dateview process count after cleanup: `0`.
+- Settings/startup cleanup:
+  - R5 clean-user settings/startup smoke passed.
+  - R5 restored the original settings directory state.
+  - R5 left no `ChinaTrayCalendar` HKCU Run value because no original value existed.
+
+Release distribution status:
+
+- PASS for `Dateview 0.1.0-preview` portable `win-x64` trial distribution.
+- Residual validation risks are limited to physical multi-monitor and alternate-DPI spot checks, plus unsigned binary distribution. These are recorded in the residual risk register above.
+
+Commit / push:
+
+- This R10 final validation section is committed by the final P9 completion commit and reported in the executor completion response.
+
+Risk / blocked:
+
+- None for P9 final release distribution validation.
