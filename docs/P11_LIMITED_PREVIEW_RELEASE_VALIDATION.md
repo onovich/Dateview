@@ -39,9 +39,11 @@ P10 compatibility and trust:
 - Version: `0.1.0-preview`
 - Bundle name: `Dateview-0.1.0-preview-win-x64`
 - Initial P11 git commit: `ef81e3b`
-- Release metadata git commit: `ef81e3b`
-- Manifest git commit: `ef81e3b`
+- Final pre-report bundle metadata git commit: `86753a5`
+- Final pre-report manifest git commit: `86753a5`
 - Manifest file count: `13`
+- Final pre-report zip bytes: `172419`
+- Final pre-report SHA256 sidecar matched: `true`
 
 Candidate artifact:
 
@@ -52,7 +54,7 @@ D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64.zip
 Candidate SHA256:
 
 ```text
-51afc3a300c7539917e80ace0c6ea2b2b09f7be4f47c8098614c63bed7bb6a73
+1d1c35a6db35e27d257f3587dab5aa44f21fdfe489db80e88a5dfeca2c2cd26e
 ```
 
 Candidate sidecars:
@@ -104,18 +106,18 @@ D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64\Datevi
 
 ### R6 Buffer Repair
 
-- [ ] Use only if a small docs/script/MVP-blocking release fix is needed.
+- [x] Not used; no small docs/script/MVP-blocking release fix was needed.
 
 ### R7 Final P11 Validation
 
-- [ ] Confirm `main...origin/main` is clean before final report.
-- [ ] Run final `Validate.cmd`.
-- [ ] Run final `Package.cmd`.
-- [ ] Run final `package-release.ps1`.
-- [ ] Run final `git diff --check`.
-- [ ] Confirm P11 docs are complete.
-- [ ] Confirm no generated artifacts are committed.
-- [ ] Push all P11 commits.
+- [x] Confirm `main...origin/main` is clean before final report.
+- [x] Run final `Validate.cmd`.
+- [x] Run final `Package.cmd`.
+- [x] Run final `package-release.ps1`.
+- [x] Run final `git diff --check`.
+- [x] Confirm P11 docs are complete.
+- [x] Confirm no generated artifacts are committed.
+- [x] Push all P11 commits.
 
 ## Round Log
 
@@ -376,3 +378,98 @@ Commit / push:
 Risk / blocked:
 
 - None for R5.
+
+### R6 - Buffer Repair
+
+Status: NOT USED
+
+No small documentation repair, release script robustness fix, test update, or MVP-blocking release defect was found after R5.
+
+### R7 - Final P11 Validation
+
+Status: PASS
+
+Scope:
+
+- Ran final validation.
+- Ran final publish/package.
+- Regenerated the final pre-report portable bundle.
+- Rechecked SHA256 sidecar matching, metadata, and manifest counts.
+- Re-ran `git diff --check`.
+- Ran a source/test/script boundary scan for P11 non-scope indicators.
+- Confirmed P11 handoff and feedback docs are complete.
+- Confirmed generated artifacts remain ignored and uncommitted.
+
+Final artifact:
+
+```text
+D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64.zip
+```
+
+Final pre-report SHA256:
+
+```text
+1d1c35a6db35e27d257f3587dab5aa44f21fdfe489db80e88a5dfeca2c2cd26e
+```
+
+Debug self-check:
+
+- Smallest preview workflow covered: P11 now has a tester handoff, feedback guide, final generated artifact/hash evidence, and a portable unzip/run smoke record.
+- Failure localization: final checks separate validation/build/test/format, publish, bundle generation, hash sidecar, manifest metadata, source boundary creep, and documentation completeness.
+- Hardware coverage: P11 still only claims live coverage for the available Windows 11 single-display, bottom-taskbar, `100%` scale / `96 DPI` environment; multi-monitor and non-100% DPI remain explicit feedback targets.
+- State cleanup: R7 did not launch the app, mutate settings, write startup registry values, change display settings, or alter the user desktop. The R5 app process smoke already verified process/temp cleanup.
+- Generated artifacts: `artifacts\release` remains ignored; no generated artifacts were committed.
+
+Architecture self-check:
+
+- R7 changes validation documentation only.
+- No runtime code, layer dependency, installer, signing, certificate, auto-update, telemetry, online API, Explorer/taskbar injection, Shell hook, HKLM write, admin requirement, or public release/upload was added.
+- P11 stayed within release-ops and feedback-readiness boundaries.
+- The final pre-report bundle metadata points to `86753a5`; the final P11 completion commit is documentation-only and intentionally follows the bundle generation to avoid a self-invalidating hash loop.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R7 start.
+- R7 start HEAD: `86753a5`.
+- Running Dateview process check before final package: none found.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+  - Domain tests: `33` passed.
+  - Application tests: `21` passed.
+  - Infrastructure tests: `37` passed.
+  - Desktop tests: `38` passed.
+  - `dotnet format --verify-no-changes`: passed.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\package-release.ps1`: passed.
+  - Bundle name: `Dateview-0.1.0-preview-win-x64`
+  - Zip bytes: `172419`
+  - Zip SHA256: `1d1c35a6db35e27d257f3587dab5aa44f21fdfe489db80e88a5dfeca2c2cd26e`
+  - SHA256 sidecar matched: `true`
+  - Metadata git commit: `86753a5`
+  - Metadata version: `0.1.0-preview`
+  - Manifest git commit: `86753a5`
+  - Manifest file count: `13`
+- Boundary scan over `src`, `tests`, and `scripts` for prohibited scope keywords (`HKLM`, `HKEY_LOCAL_MACHINE`, `SetWindowsHookEx`, `Shell_NotifyIcon`, telemetry, auto-update, installer/signing/public-release/upload indicators): no matches.
+- `git diff --check`: passed.
+
+Release artifact/hash:
+
+- `artifacts\release\Dateview-0.1.0-preview-win-x64.zip`
+- `1d1c35a6db35e27d257f3587dab5aa44f21fdfe489db80e88a5dfeca2c2cd26e`
+
+P11 release readiness status:
+
+- PASS for limited trusted preview handoff readiness.
+- Handoff doc: `docs\PREVIEW_RELEASE_HANDOFF.md`
+- Feedback doc: `docs\PREVIEW_FEEDBACK_GUIDE.md`
+- Validation doc: `docs\P11_LIMITED_PREVIEW_RELEASE_VALIDATION.md`
+
+Commit / push:
+
+- This R7 section is committed by the final P11 completion commit and pushed before the executor completion report.
+
+Residual risks:
+
+- Physical multi-monitor behavior still needs suitable hardware feedback.
+- Non-100% DPI and mixed-DPI behavior still need suitable hardware/session feedback.
+- The preview remains unsigned by design; SHA256 is an integrity check, not code signing.
+- P11 did not create a public release, upload artifacts, implement signing, or implement an installer.
