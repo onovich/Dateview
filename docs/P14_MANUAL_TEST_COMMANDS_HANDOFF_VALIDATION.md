@@ -238,7 +238,7 @@ Architecture self-check:
 
 Commit / push:
 
-- Final P14 validation commit: pending.
+- Final P14 validation commit: `d323141`, pushed to `origin/main`.
 
 Residual risks:
 
