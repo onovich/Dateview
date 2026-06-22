@@ -37,6 +37,46 @@ public sealed class CalendarViewModelTests
     }
 
     [Fact]
+    public void CalendarPopupWindowClosesOnEscape()
+    {
+        Exception? exception = null;
+        bool? isVisibleAfterEscape = null;
+        Thread thread = new(() =>
+        {
+            try
+            {
+                CalendarPopupWindow window = new();
+                window.Show();
+                System.Windows.PresentationSource inputSource =
+                    System.Windows.PresentationSource.FromDependencyObject(
+                        (System.Windows.DependencyObject)(object)window)
+                    ?? throw new InvalidOperationException("Popup window has no presentation source.");
+
+                window.RaiseEvent(new System.Windows.Input.KeyEventArgs(
+                    System.Windows.Input.Keyboard.PrimaryDevice,
+                    inputSource,
+                    Environment.TickCount,
+                    System.Windows.Input.Key.Escape)
+                {
+                    RoutedEvent = System.Windows.Input.Keyboard.PreviewKeyDownEvent,
+                });
+                isVisibleAfterEscape = window.IsVisible;
+            }
+            catch (Exception caughtException)
+            {
+                exception = caughtException;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+
+        thread.Start();
+        thread.Join();
+
+        Assert.Null(exception);
+        Assert.False(isVisibleAfterEscape);
+    }
+
+    [Fact]
     public async Task LoadAsyncPopulatesCurrentMonth()
     {
         FakeClock clock = new(new DateOnly(2026, 6, 22));
