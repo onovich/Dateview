@@ -47,6 +47,43 @@ dotnet publish src\ChinaTrayCalendar.Desktop\ChinaTrayCalendar.Desktop.csproj -p
 
 The configured output folder is `src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windows\win-x64\publish\`.<br/>**已配置的发布输出目录是 `src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windows\win-x64\publish\`。**
 
+## Portable Release Bundle
+
+Create the trial release bundle with the repository script:<br/>**使用仓库脚本创建试用版发布包：**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\package-release.ps1
+```
+
+The script publishes the app, stages a portable folder, creates a zip, and writes SHA256 and JSON metadata under `artifacts\release\`.<br/>**脚本会发布应用、整理便携目录、创建 zip，并在 `artifacts\release\` 下写入 SHA256 和 JSON 元数据。**
+
+Generated local artifacts include:<br/>**生成的本地产物包括：**
+
+- `artifacts\release\Dateview-0.1.0-preview-win-x64\Dateview\`
+- `artifacts\release\Dateview-0.1.0-preview-win-x64.zip`
+- `artifacts\release\Dateview-0.1.0-preview-win-x64.sha256.txt`
+- `artifacts\release\Dateview-0.1.0-preview-win-x64.release.json`
+
+These generated artifacts are ignored by git and should not be committed.<br/>**这些生成产物已被 git 忽略，不应提交到仓库。**
+
+## Use A Portable Bundle
+
+1. Download or copy `Dateview-0.1.0-preview-win-x64.zip` and the matching `.sha256.txt` file if it is provided.<br/>**下载或复制 `Dateview-0.1.0-preview-win-x64.zip`；如果同时提供 `.sha256.txt`，也一起保存。**
+2. Optional integrity check:<br/>**可选完整性检查：**
+
+```powershell
+Get-FileHash -Algorithm SHA256 .\Dateview-0.1.0-preview-win-x64.zip
+Get-Content .\Dateview-0.1.0-preview-win-x64.sha256.txt
+```
+
+3. Extract the zip to a normal user folder, such as `%LOCALAPPDATA%\Programs\Dateview` or a tools folder under the current user's profile.<br/>**将 zip 解压到普通用户目录，例如 `%LOCALAPPDATA%\Programs\Dateview`，或当前用户配置文件下的工具目录。**
+4. Run `Dateview\ChinaTrayCalendar.Desktop.exe` from the extracted folder.<br/>**从解压后的目录运行 `Dateview\ChinaTrayCalendar.Desktop.exe`。**
+5. To exit, right-click the tray icon and choose Exit.<br/>**退出应用时，右键托盘图标并选择“退出”。**
+6. To start with Windows, right-click the tray icon and toggle Start with Windows. This writes only the current user's HKCU Run entry.<br/>**如需开机启动，右键托盘图标并切换“开机启动”。该操作只写入当前用户的 HKCU Run 项。**
+7. To uninstall the portable build, exit the app, turn off Start with Windows if enabled, delete the extracted folder, and optionally remove `%APPDATA%\ChinaTrayCalendar\settings.json` if you do not want to keep preferences.<br/>**卸载便携版时，先退出应用；如果启用了开机启动，先关闭它；然后删除解压目录。如不想保留偏好设置，可再删除 `%APPDATA%\ChinaTrayCalendar\settings.json`。**
+
+P9 does not provide an installer, auto-update, code signing, online holiday sync, or telemetry.<br/>**P9 不提供安装器、自动更新、代码签名、在线节假日同步或遥测。**
+
 ## Settings And Data
 
 - Settings file: `%APPDATA%\ChinaTrayCalendar\settings.json`.<br/>**设置文件：`%APPDATA%\ChinaTrayCalendar\settings.json`。**

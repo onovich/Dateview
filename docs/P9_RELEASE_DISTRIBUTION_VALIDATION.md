@@ -68,10 +68,10 @@ artifacts\release\
 
 ### Documentation
 
-- [ ] Update README for download/extract/run/exit/startup/uninstall.
-- [ ] Update troubleshooting for portable path and cleanup.
-- [ ] Add release notes.
-- [ ] Avoid promises for unimplemented installer/update/sync behavior.
+- [x] Update README for download/extract/run/exit/startup/uninstall.
+- [x] Update troubleshooting for portable path and cleanup.
+- [x] Add release notes.
+- [x] Avoid promises for unimplemented installer/update/sync behavior.
 
 ### Startup And Portable Smoke
 
@@ -291,8 +291,49 @@ Release artifact/hash:
 
 Commit / push:
 
-- Pending R3 commit.
+- `f922f24 release: add manifest and hash metadata` pushed.
 
 Risk / blocked:
 
 - None for R3.
+
+### R4 - Distribution Documentation And Release Notes
+
+Status: PASS
+
+Scope:
+
+- Updated `README.md` with the portable release bundle command.
+- Added README user workflow for download/copy, optional SHA256 check, extraction, running, exiting, Start with Windows, and portable uninstall.
+- Updated `docs\TROUBLESHOOTING.md` with portable path, relative holiday-data, protected-folder, file-lock, moved-folder startup, and SHA256 integrity notes.
+- Added `docs\RELEASE_NOTES.md` for `0.1.0-preview`.
+
+Debug self-check:
+
+- Fresh user path: README now starts from receiving a zip and hash file, then extracting and running from a normal user folder.
+- Failure localization: troubleshooting separates zip extraction, relative `assets` folder, file locks, startup path staleness, and hash interpretation.
+- Coverage: docs explicitly cover exit, startup toggle, uninstall cleanup, and optional settings removal.
+
+Architecture self-check:
+
+- R4 changes documentation only.
+- No runtime behavior, dependencies, installer tooling, auto-update, online sync, telemetry, shell hooks, HKLM writes, or admin requirement added.
+- Release notes state that SHA256 is an integrity check and not code signing.
+- Docs avoid promising unimplemented installer/update/sync behavior.
+
+Validation:
+
+- `git diff --check`: passed.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+
+Release artifact/hash:
+
+- No new artifact generated in R4; R3 artifact remains the latest script-generated release evidence.
+
+Commit / push:
+
+- Pending R4 commit.
+
+Risk / blocked:
+
+- None for R4.

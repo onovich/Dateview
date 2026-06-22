@@ -25,6 +25,15 @@
 - Start with Windows writes only the current user's Run key: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.<br/>**“开机自动启动”只写入当前用户的 Run 注册表项：`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`。**
 - The app does not require administrator rights and does not write HKLM.<br/>**应用不需要管理员权限，也不会写入 HKLM。**
 
+## Portable Bundle And Cleanup
+
+- The portable zip should be extracted before running; do not run the executable directly from inside the zip viewer.<br/>**便携版 zip 应先解压再运行；不要直接从 zip 查看器中启动 exe。**
+- Keep the `Dateview\assets\holidays\cn\` folder beside the executable. Missing holiday JSON files can prevent offline holiday data from loading.<br/>**请保留 exe 旁边的 `Dateview\assets\holidays\cn\` 目录。缺少节假日 JSON 文件会导致离线节假日数据无法加载。**
+- Prefer a normal user-writable folder such as `%LOCALAPPDATA%\Programs\Dateview`; protected locations such as `C:\Program Files` may require administrator rights for copying or cleanup.<br/>**建议解压到普通用户可写目录，例如 `%LOCALAPPDATA%\Programs\Dateview`；`C:\Program Files` 等受保护位置可能在复制或清理时要求管理员权限。**
+- If deleting the portable folder fails because files are in use, right-click the tray icon and choose Exit, then confirm no `ChinaTrayCalendar.Desktop.exe` process remains.<br/>**如果删除便携目录时提示文件占用，请先右键托盘图标选择“退出”，再确认没有残留的 `ChinaTrayCalendar.Desktop.exe` 进程。**
+- If the app was moved after Start with Windows was enabled, turn the startup toggle off and on again so the HKCU Run value points to the new executable path.<br/>**如果启用“开机启动”后移动了应用目录，请关闭再重新打开该开关，让 HKCU Run 值指向新的 exe 路径。**
+- The `.sha256.txt` file is an integrity check for the zip, not a code signature. Use it only to confirm the downloaded zip matches the expected hash.<br/>**`.sha256.txt` 是 zip 完整性校验，不是代码签名；它只用于确认下载到的 zip 与预期哈希一致。**
+
 ## Holiday Data
 
 - Holiday data is bundled under `assets\holidays\cn\{year}.json`; update it from official yearly notices only.<br/>**节假日数据随应用打包在 `assets\holidays\cn\{year}.json`；只能根据官方年度通知更新。**
