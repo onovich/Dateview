@@ -10,6 +10,9 @@ namespace ChinaTrayCalendar.Desktop;
 
 public partial class App : System.Windows.Application
 {
+    private const string SingleInstanceMutexName = @"Local\ChinaTrayCalendar.Dateview";
+
+    private SingleInstanceGuard? singleInstanceGuard;
     private TrayIconService? trayIconService;
     private CalendarPopupWindow? popupWindow;
 
@@ -18,6 +21,13 @@ public partial class App : System.Windows.Application
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
         base.OnStartup(e);
+
+        singleInstanceGuard = SingleInstanceGuard.TryAcquire(SingleInstanceMutexName);
+        if (!singleInstanceGuard.IsPrimaryInstance)
+        {
+            Shutdown(exitCode: 0);
+            return;
+        }
 
         trayIconService = new TrayIconService(new NotifyIconFactory());
         trayIconService.PrimaryClick += OnTrayIconPrimaryClick;
@@ -41,6 +51,7 @@ public partial class App : System.Windows.Application
         }
 
         popupWindow?.Close();
+        singleInstanceGuard?.Dispose();
         base.OnExit(e);
     }
 
