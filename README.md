@@ -6,7 +6,7 @@ Dateview is a lightweight Windows tray calendar for viewing the current month, C
 
 - Runs as a normal user-mode WPF tray app with `System.Windows.Forms.NotifyIcon`.<br/>**作为普通用户权限的 WPF 托盘应用运行，托盘集成使用 `System.Windows.Forms.NotifyIcon`。**
 - Left-click the tray icon to show or hide the compact calendar popup near the taskbar edge.<br/>**左键点击托盘图标，可在任务栏边缘附近显示或隐藏紧凑日历弹窗。**
-- Right-click the tray icon for Today, Settings, Start with Windows, and Exit entries; settings currently hosts the editable startup toggle.<br/>**右键点击托盘图标可看到“今天”“设置”“开机启动”“退出”等入口；当前开机启动开关在设置窗口中编辑。**
+- Right-click the tray icon for Today, Settings, Start with Windows, and Exit entries; Start with Windows toggles the current-user startup registration.<br/>**右键点击托盘图标可看到“今天”“设置”“开机启动”“退出”等入口；“开机启动”会切换当前用户的自启动注册。**
 - Uses bundled offline holiday JSON files for China holiday and adjusted-workday data.<br/>**使用随应用打包的离线中国节假日 JSON 文件，不依赖启动时联网。**
 - Stores settings under the current user's roaming profile and writes startup registration only to HKCU.<br/>**设置保存到当前用户漫游配置目录，自启动注册只写入 HKCU。**
 - Does not use Explorer injection, global hooks, administrator privileges, online holiday APIs, sync, or telemetry.<br/>**不使用 Explorer 注入、全局钩子、管理员权限、在线节假日 API、日历同步或遥测。**

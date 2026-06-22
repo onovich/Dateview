@@ -8,6 +8,43 @@ namespace ChinaTrayCalendar.Desktop.Tests;
 public sealed class SettingsViewModelTests
 {
     [Fact]
+    public void SettingsWindowCanShowWithViewModel()
+    {
+        Exception? exception = null;
+        Thread thread = new(() =>
+        {
+            try
+            {
+                FakeSettingsStore settingsStore = new(AppSettings.CreateDefault());
+                FakeAutoStartService autoStartService = new();
+                SettingsViewModel viewModel = CreateViewModel(settingsStore, autoStartService);
+                viewModel.LoadCommand.ExecuteAsync().GetAwaiter().GetResult();
+                SettingsWindow window = new()
+                {
+                    DataContext = viewModel,
+                };
+
+                window.Show();
+                window.UpdateLayout();
+
+                Assert.False(window.ShowInTaskbar);
+                Assert.Equal("设置", window.Title);
+                window.Close();
+            }
+            catch (Exception caughtException)
+            {
+                exception = caughtException;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+
+        thread.Start();
+        thread.Join();
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
     public async Task LoadCommandPopulatesSettingsAndObservedStartupState()
     {
         FakeSettingsStore settingsStore = new(new AppSettings(DayOfWeek.Sunday, startWithWindows: false));

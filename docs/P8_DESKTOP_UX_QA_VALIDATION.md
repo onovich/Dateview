@@ -37,8 +37,8 @@ D:\ToolProjects\Dateview\src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windo
 - [x] Confirm a second launch exits successfully without opening another long-running instance.
 - [x] Right-click the tray icon and confirm the context menu contains Today, Settings, Start with Windows, and Exit.
 - [ ] Click Today from the context menu and confirm the calendar returns to the current month when the popup is visible.
-- [ ] Click Settings from the context menu and confirm the settings window opens.
-- [ ] Toggle Start with Windows from the context menu and restore the original state afterward.
+- [x] Click Settings from the context menu and confirm the settings window opens.
+- [x] Toggle Start with Windows from the context menu and restore the original state afterward.
 - [x] Click Exit and confirm the app process exits and the tray icon clears.
 
 ### Popup Interaction
@@ -62,19 +62,19 @@ D:\ToolProjects\Dateview\src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windo
 
 ### Settings, Startup, And Offline Data
 
-- [ ] Change first day of week in Settings, save, restart the app, and confirm the setting persists.
-- [ ] Confirm settings are written under `%APPDATA%\ChinaTrayCalendar\settings.json`.
-- [ ] Enable Start with Windows and confirm only the current-user Run key is affected.
-- [ ] Disable Start with Windows and confirm the original registry state is restored.
-- [ ] Confirm no HKLM startup location is written.
-- [ ] Confirm bundled holiday data is loaded offline from the published output.
-- [ ] Confirm 2025 and 2026 Chinese holidays and adjusted workdays render with `休` and `班` badges.
+- [x] Change first day of week in Settings, save, restart the app, and confirm the setting persists.
+- [x] Confirm settings are written under `%APPDATA%\ChinaTrayCalendar\settings.json`.
+- [x] Enable Start with Windows and confirm only the current-user Run key is affected.
+- [x] Disable Start with Windows and confirm the original registry state is restored.
+- [x] Confirm no HKLM startup location is written.
+- [x] Confirm bundled holiday data is loaded offline from the published output.
+- [x] Confirm 2025 and 2026 Chinese holidays and adjusted workdays render with `休` and `班` badges.
 
 ### Documentation And RC Closure
 
-- [ ] Confirm `README.md` and `docs/TROUBLESHOOTING.md` match the final behavior.
-- [ ] Run `Validate.cmd`.
-- [ ] Run `Package.cmd`.
+- [x] Confirm `README.md` and `docs/TROUBLESHOOTING.md` match the final behavior.
+- [x] Run `Validate.cmd`.
+- [x] Run `Package.cmd`.
 - [ ] Run a fresh published-output smoke test.
 - [ ] Record final residual risk and Release Candidate status.
 
@@ -286,4 +286,75 @@ Architecture self-check:
 - R4 changes stayed in Desktop XAML and Desktop popup placement code.
 - Shared placement math remains in the existing Desktop placement helper and tests.
 - No Domain/Application/Infrastructure behavior changed.
+- No shell hook, Explorer injection, admin requirement, online dependency, or third-party package was introduced.
+
+### R5 - Settings, Startup, And Offline Holiday Data
+
+Status: PASS
+
+Defect found and fixed:
+
+- Real context-menu `设置` opened the Settings window path and crashed the published process.
+- Windows Application event log recorded an unhandled `System.InvalidOperationException`: WPF could not use TwoWay or OneWayToSource binding for read-only property `SettingsViewModel.ThemeLabel`.
+- Fixed `SettingsWindow.xaml` by making the disabled theme display bind `ThemeLabel` with `Mode=OneWay`.
+- Added `SettingsWindowCanShowWithViewModel` so showing the actual WPF Settings window with its view model catches this binding regression.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R5 start.
+- `dotnet test tests\ChinaTrayCalendar.Desktop.Tests\ChinaTrayCalendar.Desktop.Tests.csproj --configuration Release`: passed, Desktop test count increased from `37` to `38`.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed after formatting.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed after the fix.
+
+Manual and smoke evidence:
+
+- Original user state before R5 mutation:
+  - HKCU Run value `ChinaTrayCalendar`: absent.
+  - Settings file `%APPDATA%\ChinaTrayCalendar\settings.json`: absent.
+- Published Settings window smoke after the fix:
+  - Context-menu `设置` opened without process crash.
+  - Settings controls present: `每周开始于`, `主题`, `开机自动启动`, `取消`, `保存`.
+  - Saving wrote `%APPDATA%\ChinaTrayCalendar\settings.json`.
+  - Saved default settings observed: `firstDayOfWeek = Monday`, `startWithWindows = false`.
+  - No HKCU Run value was written by saving while the startup checkbox was off.
+- First-day persistence smoke:
+  - Seeded the real settings file with `firstDayOfWeek = Sunday`, `startWithWindows = false`, `theme = System`.
+  - Restarted the published executable and opened the real popup.
+  - Popup header order was `日, 一, 二, 三, 四, 五, 六`.
+  - `SettingsViewModelTests.SaveCommandPersistsSettingsTogglesStartupAndRequestsClose` covers changing the Settings view model first-day selection to Sunday and saving it through the same settings use case.
+- Startup toggle smoke:
+  - Context-menu `开机启动` enabled HKCU Run value:
+    - `"D:\ToolProjects\Dateview\src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windows\win-x64\publish\ChinaTrayCalendar.Desktop.exe"`
+  - Context-menu `开机启动` disabled the HKCU Run value again.
+  - HKLM Run locations had no `ChinaTrayCalendar` value.
+- Offline holiday data smoke:
+  - Published `2025.json`: `schemaVersion = 1`, jurisdiction `CN`, `33` days, `28` day-off entries, `5` adjusted-workday entries.
+  - Published `2026.json`: `schemaVersion = 1`, jurisdiction `CN`, `39` days, `33` day-off entries, `6` adjusted-workday entries.
+  - Both files parsed with UTF-8 from the published output; reading them with Windows PowerShell's default non-UTF-8 decoding corrupts Chinese text and is not a product defect.
+- Badge rendering smoke:
+  - Current June 2026 popup showed three visible `休` badges.
+  - Navigating the published popup back to January 2026 reached `2026年1月` and showed `班 = 1`, `休 = 3`.
+- Cleanup after R5:
+  - HKCU Run value restored to absent.
+  - Settings file restored to absent.
+  - No `ChinaTrayCalendar.Desktop` process left running.
+
+Documentation check:
+
+- Updated `README.md` so the right-click `Start with Windows` entry is documented as a direct current-user startup toggle.
+- `docs/TROUBLESHOOTING.md` remains accurate: settings path is `%APPDATA%\ChinaTrayCalendar\settings.json`, and startup writes only HKCU Run.
+
+Debug self-check:
+
+- Minimal workflow covered in R5: open Settings from the real tray menu, show Settings without crashing, save settings, restart with persisted settings, toggle startup on/off, parse published holiday data, and confirm visible holiday/workday badges.
+- Failure layer checked: Desktop WPF binding, Desktop Settings view, Application settings/startup use cases, Infrastructure settings file and HKCU startup adapters, published-output resource copying.
+- Success/failure cases covered: settings window crash before fix, no crash after fix, HKCU enable/disable, HKLM untouched, UTF-8 holiday parsing, settings/registry cleanup.
+- Registry/settings cleanup: original absent HKCU Run value and absent settings file were restored.
+
+Architecture self-check:
+
+- The runtime fix stayed in Desktop XAML and Desktop tests.
+- Settings persistence still flows through Application use cases and Infrastructure `JsonSettingsStore`.
+- Startup mutation still flows through Application `ToggleStartupUseCase` and Infrastructure `WindowsAutoStartService`.
+- No Domain business logic changed.
 - No shell hook, Explorer injection, admin requirement, online dependency, or third-party package was introduced.

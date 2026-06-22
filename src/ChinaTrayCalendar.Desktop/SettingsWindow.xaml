@@ -44,7 +44,7 @@
                      Grid.Column="1"
                      Margin="0,0,0,12"
                      IsEnabled="False"
-                     Text="{Binding ThemeLabel}" />
+                     Text="{Binding ThemeLabel, Mode=OneWay}" />
 
             <CheckBox Grid.Row="2"
                       Grid.Column="1"
