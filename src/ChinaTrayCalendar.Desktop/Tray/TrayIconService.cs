@@ -19,6 +19,8 @@ internal sealed class TrayIconService : IDisposable
 
     public event EventHandler? ExitRequested;
 
+    public event EventHandler? SettingsRequested;
+
     public event EventHandler? TodayRequested;
 
     public bool IsVisible => trayIcon?.Visible == true;
@@ -61,10 +63,8 @@ internal sealed class TrayIconService : IDisposable
         ToolStripMenuItem todayItem = new(DesktopStrings.TrayMenuToday);
         todayItem.Click += (_, _) => TodayRequested?.Invoke(this, EventArgs.Empty);
 
-        ToolStripMenuItem settingsItem = new(DesktopStrings.TrayMenuSettings)
-        {
-            Enabled = false,
-        };
+        ToolStripMenuItem settingsItem = new(DesktopStrings.TrayMenuSettings);
+        settingsItem.Click += (_, _) => SettingsRequested?.Invoke(this, EventArgs.Empty);
         ToolStripMenuItem startWithWindowsItem = new(DesktopStrings.TrayMenuStartWithWindows)
         {
             Enabled = false,

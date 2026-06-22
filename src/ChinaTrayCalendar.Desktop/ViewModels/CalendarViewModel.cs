@@ -9,13 +9,14 @@ namespace ChinaTrayCalendar.Desktop.ViewModels;
 public sealed class CalendarViewModel : INotifyPropertyChanged
 {
     private readonly IClock clock;
-    private readonly DayOfWeek firstDayOfWeek;
     private readonly GetMonthCalendarUseCase getMonthCalendarUseCase;
     private IReadOnlyList<CalendarDayDto> cells = [];
     private CalendarMonth displayedMonth;
     private string? errorMessage;
+    private DayOfWeek firstDayOfWeek;
     private bool isLoading;
     private string monthTitle = string.Empty;
+    private IReadOnlyList<string> weekdayHeaders = [];
 
     public CalendarViewModel(
         GetMonthCalendarUseCase getMonthCalendarUseCase,
@@ -70,7 +71,11 @@ public sealed class CalendarViewModel : INotifyPropertyChanged
         private set => SetProperty(ref monthTitle, value);
     }
 
-    public IReadOnlyList<string> WeekdayHeaders { get; }
+    public IReadOnlyList<string> WeekdayHeaders
+    {
+        get => weekdayHeaders;
+        private set => SetProperty(ref weekdayHeaders, value);
+    }
 
     public IReadOnlyList<CalendarDayDto> Cells
     {
@@ -108,6 +113,27 @@ public sealed class CalendarViewModel : INotifyPropertyChanged
 
     public Task LoadAsync(CancellationToken cancellationToken = default)
     {
+        return LoadMonthAsync(DisplayedMonth, cancellationToken);
+    }
+
+    public Task ApplyFirstDayOfWeekAsync(DayOfWeek newFirstDayOfWeek, CancellationToken cancellationToken = default)
+    {
+        if (!Enum.IsDefined(newFirstDayOfWeek))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(newFirstDayOfWeek),
+                newFirstDayOfWeek,
+                "First day of week is not supported.");
+        }
+
+        if (firstDayOfWeek == newFirstDayOfWeek)
+        {
+            return Task.CompletedTask;
+        }
+
+        firstDayOfWeek = newFirstDayOfWeek;
+        WeekdayHeaders = BuildWeekdayHeaders(firstDayOfWeek);
+
         return LoadMonthAsync(DisplayedMonth, cancellationToken);
     }
 

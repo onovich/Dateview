@@ -126,7 +126,7 @@ public sealed class TrayIconServiceTests
             ?? throw new InvalidOperationException("Context menu was not created.");
         Assert.Equal(5, menu.Items.Count);
         AssertMenuItem(menu, index: 0, DesktopStrings.TrayMenuToday, enabled: true);
-        AssertMenuItem(menu, index: 1, DesktopStrings.TrayMenuSettings, enabled: false);
+        AssertMenuItem(menu, index: 1, DesktopStrings.TrayMenuSettings, enabled: true);
         AssertMenuItem(menu, index: 2, DesktopStrings.TrayMenuStartWithWindows, enabled: false);
         Assert.IsType<ToolStripSeparator>(menu.Items[3]);
         AssertMenuItem(menu, index: 4, DesktopStrings.TrayMenuExit, enabled: true);
@@ -143,6 +143,21 @@ public sealed class TrayIconServiceTests
 
         ToolStripMenuItem todayItem = GetMenuItem(factory, index: 0);
         todayItem.PerformClick();
+
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
+    public void SettingsMenuClickRaisesSettingsRequested()
+    {
+        FakeTrayIconFactory factory = new();
+        using TrayIconService service = new(factory);
+        int requestCount = 0;
+        service.SettingsRequested += (_, _) => requestCount++;
+        service.Show();
+
+        ToolStripMenuItem settingsItem = GetMenuItem(factory, index: 1);
+        settingsItem.PerformClick();
 
         Assert.Equal(1, requestCount);
     }

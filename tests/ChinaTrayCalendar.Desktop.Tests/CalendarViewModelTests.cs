@@ -121,6 +121,19 @@ public sealed class CalendarViewModelTests
     }
 
     [Fact]
+    public async Task ApplyFirstDayOfWeekAsyncRefreshesHeadersAndGrid()
+    {
+        FakeClock clock = new(new DateOnly(2026, 6, 22));
+        CalendarViewModel viewModel = CreateViewModel(clock);
+        await viewModel.LoadAsync();
+
+        await viewModel.ApplyFirstDayOfWeekAsync(DayOfWeek.Sunday);
+
+        Assert.Equal(["日", "一", "二", "三", "四", "五", "六"], viewModel.WeekdayHeaders);
+        Assert.Equal(new DateOnly(2026, 5, 31), viewModel.Cells[0].Date);
+    }
+
+    [Fact]
     public void CloseCommandRaisesCloseRequested()
     {
         CalendarViewModel viewModel = CreateViewModel(new FakeClock(new DateOnly(2026, 6, 22)));
