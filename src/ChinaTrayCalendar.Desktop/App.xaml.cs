@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using ChinaTrayCalendar.Application.Calendars;
+using ChinaTrayCalendar.Desktop.Tray;
 using ChinaTrayCalendar.Desktop.ViewModels;
 using ChinaTrayCalendar.Infrastructure.Holidays;
 using ChinaTrayCalendar.Infrastructure.Time;
@@ -9,9 +10,14 @@ namespace ChinaTrayCalendar.Desktop;
 
 public partial class App : System.Windows.Application
 {
+    private TrayIconService? trayIconService;
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        trayIconService = new TrayIconService(new NotifyIconFactory());
+        trayIconService.Show();
 
         CalendarPopupWindow window = new();
         CalendarViewModel viewModel = CreateCalendarViewModel();
@@ -21,6 +27,12 @@ public partial class App : System.Windows.Application
         window.Show();
 
         await viewModel.LoadAsync();
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        trayIconService?.Dispose();
+        base.OnExit(e);
     }
 
     private static CalendarViewModel CreateCalendarViewModel()
