@@ -2,6 +2,7 @@
 
 具体执行文档见：
 
+- [Dateview P9 Release Distribution Goal 模式执行指南](P9_RELEASE_DISTRIBUTION_GOAL_MODE_EXECUTION_GUIDE.md)
 - [Dateview P8 Desktop UX QA Goal 模式执行指南](P8_DESKTOP_UX_QA_GOAL_MODE_EXECUTION_GUIDE.md)
 - [Dateview P0-P7 Goal 模式执行指南](P0_P7_GOAL_MODE_EXECUTION_GUIDE.md)
 - [Dateview 分阶段研发计划](PHASED_RESEARCH_AND_DEVELOPMENT_PLAN.md)
