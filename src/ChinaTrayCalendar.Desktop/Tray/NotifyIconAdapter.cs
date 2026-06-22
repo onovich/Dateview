@@ -5,10 +5,10 @@ namespace ChinaTrayCalendar.Desktop.Tray;
 
 internal sealed class NotifyIconAdapter(NotifyIcon notifyIcon) : ITrayIcon
 {
-    public event MouseEventHandler? MouseUp
+    public event MouseEventHandler? MouseClick
     {
-        add => notifyIcon.MouseUp += value;
-        remove => notifyIcon.MouseUp -= value;
+        add => notifyIcon.MouseClick += value;
+        remove => notifyIcon.MouseClick -= value;
     }
 
     public Icon? Icon

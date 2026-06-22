@@ -184,7 +184,9 @@ public partial class App : System.Windows.Application
         }
 
         popupWindowPlacer.Place(popupWindow, clickPoint);
+        popupWindow.SuppressDeactivationForTrayOpen();
         popupWindow.Show();
+        popupWindow.Activate();
         popupAnimationService.PlayEntrance((Window)(object)popupWindow);
     }
 

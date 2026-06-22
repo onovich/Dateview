@@ -5,7 +5,7 @@ namespace ChinaTrayCalendar.Desktop.Tray;
 
 internal interface ITrayIcon : IDisposable
 {
-    event MouseEventHandler? MouseUp;
+    event MouseEventHandler? MouseClick;
 
     Icon? Icon { get; set; }
 

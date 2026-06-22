@@ -65,7 +65,7 @@ public sealed class TrayIconServiceTests
     }
 
     [Fact]
-    public void LeftMouseUpRaisesPrimaryClick()
+    public void LeftMouseClickRaisesPrimaryClick()
     {
         FakeTrayIconFactory factory = new();
         using TrayIconService service = new(factory, () => new Point(120, 840));
@@ -78,14 +78,14 @@ public sealed class TrayIconServiceTests
         };
         service.Show();
 
-        Assert.Single(factory.CreatedIcons).RaiseMouseUp(MouseButtons.Left);
+        Assert.Single(factory.CreatedIcons).RaiseMouseClick(MouseButtons.Left);
 
         Assert.Equal(1, clickCount);
         Assert.Equal(new Point(120, 840), screenPoint);
     }
 
     [Fact]
-    public void RightMouseUpDoesNotRaisePrimaryClick()
+    public void RightMouseClickDoesNotRaisePrimaryClick()
     {
         FakeTrayIconFactory factory = new();
         using TrayIconService service = new(factory);
@@ -93,7 +93,7 @@ public sealed class TrayIconServiceTests
         service.PrimaryClick += (_, _) => clickCount++;
         service.Show();
 
-        Assert.Single(factory.CreatedIcons).RaiseMouseUp(MouseButtons.Right);
+        Assert.Single(factory.CreatedIcons).RaiseMouseClick(MouseButtons.Right);
 
         Assert.Equal(0, clickCount);
     }
@@ -109,7 +109,7 @@ public sealed class TrayIconServiceTests
         FakeTrayIcon icon = Assert.Single(factory.CreatedIcons);
 
         service.Dispose();
-        icon.RaiseMouseUp(MouseButtons.Left);
+        icon.RaiseMouseClick(MouseButtons.Left);
 
         Assert.Equal(0, clickCount);
     }
@@ -236,7 +236,7 @@ public sealed class TrayIconServiceTests
 
     private sealed class FakeTrayIcon : ITrayIcon
     {
-        public event MouseEventHandler? MouseUp;
+        public event MouseEventHandler? MouseClick;
 
         public Icon? Icon { get; set; } = SystemIcons.Application;
 
@@ -253,9 +253,9 @@ public sealed class TrayIconServiceTests
             IsDisposed = true;
         }
 
-        public void RaiseMouseUp(MouseButtons mouseButton)
+        public void RaiseMouseClick(MouseButtons mouseButton)
         {
-            MouseUp?.Invoke(this, new MouseEventArgs(mouseButton, clicks: 1, x: 0, y: 0, delta: 0));
+            MouseClick?.Invoke(this, new MouseEventArgs(mouseButton, clicks: 1, x: 0, y: 0, delta: 0));
         }
     }
 }

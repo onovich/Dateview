@@ -12,24 +12,30 @@ internal sealed class PopupAnimationService
     {
         ArgumentNullException.ThrowIfNull(window);
 
-        TranslateTransform translateTransform = new()
-        {
-            Y = 8,
-        };
-
-        window.RenderTransform = translateTransform;
         window.Opacity = 0;
 
         DoubleAnimation opacityAnimation = new(1, EntranceDuration)
         {
             EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut },
         };
+
+        window.BeginAnimation(UIElement.OpacityProperty, opacityAnimation);
+
+        if (window.Content is not UIElement contentElement)
+        {
+            return;
+        }
+
+        TranslateTransform translateTransform = new()
+        {
+            Y = 8,
+        };
         DoubleAnimation translateAnimation = new(0, EntranceDuration)
         {
             EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut },
         };
 
-        window.BeginAnimation(UIElement.OpacityProperty, opacityAnimation);
+        contentElement.RenderTransform = translateTransform;
         translateTransform.BeginAnimation(TranslateTransform.YProperty, translateAnimation);
     }
 }

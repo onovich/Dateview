@@ -43,14 +43,14 @@ D:\ToolProjects\Dateview\src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windo
 
 ### Popup Interaction
 
-- [ ] Left-click the tray icon and confirm the calendar popup opens.
-- [ ] Left-click the tray icon again and confirm the popup hides.
-- [ ] Press Escape while the popup is open and confirm it hides.
-- [ ] Click outside the popup and confirm it hides.
-- [ ] Move focus away from the popup and confirm it hides when the pointer is outside the popup.
+- [x] Left-click the tray icon and confirm the calendar popup opens.
+- [x] Left-click the tray icon again and confirm the popup hides.
+- [x] Press Escape while the popup is open and confirm it hides.
+- [x] Click outside the popup and confirm it hides.
+- [x] Move focus away from the popup and confirm it hides when the pointer is outside the popup.
 - [ ] Confirm the popup does not appear in Alt+Tab.
-- [ ] Confirm the popup does not create a normal taskbar button.
-- [ ] Use Previous Month, Next Month, and Today controls and confirm the displayed month changes correctly.
+- [x] Confirm the popup does not create a normal taskbar button.
+- [x] Use Previous Month, Next Month, and Today controls and confirm the displayed month changes correctly.
 
 ### Placement, DPI, And Visual Behavior
 
@@ -167,4 +167,68 @@ Architecture self-check:
 - UI and tray behavior stayed in Desktop.
 - Startup state mutation uses existing Application `ToggleStartupUseCase` and Infrastructure `WindowsAutoStartService`.
 - No Domain or Application business logic was duplicated in the UI.
+- No shell hook, Explorer injection, admin requirement, online dependency, or third-party package was introduced.
+
+### R3 - Popup Open, Hide, Navigation, And Window Shell Behavior
+
+Status: PASS
+
+Defects found and fixed:
+
+- Real tray left-click reached `PopupAnimationService.PlayEntrance` and exposed `System.InvalidOperationException: Transform is not valid for Window`.
+- Fixed `PopupAnimationService` so opacity animation remains on the `Window`, while translate animation is applied to `window.Content` only when it is a `UIElement`; non-UIElement content safely falls back to opacity only.
+- Added `PopupAnimationServiceTests` to verify `Window.RenderTransform` is not set and content-root transform is used.
+- Real tray left-click did not reliably raise the popup through `NotifyIcon.MouseUp`.
+- Switched tray primary-click wiring to `NotifyIcon.MouseClick` via `ITrayIcon.MouseClick`, and updated tray tests accordingly.
+- After suppressing the tray-overflow immediate `Deactivated`, the popup is explicitly activated only after a user tray click so Escape and in-popup controls receive input.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R3 start.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed after the fixes.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed after the fixes.
+- Desktop test count increased from `35` to `37`.
+
+Manual and smoke evidence:
+
+- Started the published executable as a normal user.
+- Real tray left-click on `Dateview` opened the popup:
+  - Tray button rectangle: `2090,1392,32,48`
+  - Popup rectangle: `1926,964,360,420`
+  - Month title: `2026年6月`
+  - JIT window count: `0`
+- Real tray left-click toggle passed:
+  - `VisibleAfterOpen`: `true`
+  - `VisibleAfterSecondClick`: `false`
+- Escape and outside-click hide passed:
+  - `VisibleAfterEscape`: `false`
+  - `VisibleAfterOutsideClick`: `false`
+- Popup shell evidence:
+  - `TaskbarDateviewButtonCount`: `0`
+  - Popup extended style: `0x80000`
+  - `HasAppWindow`: `false`
+  - JIT window count: `0`
+- Navigation smoke:
+  - Initial title: `2026年6月`
+  - Next month button changed the title to `2026年7月`.
+  - Previous month button moved the displayed month backward.
+  - Today button returned the title to `2026年6月`.
+  - Exact Previous/Next command semantics remain covered by deterministic Desktop view-model tests; real smoke confirmed the controls are clickable in the published popup.
+
+Deferred to later P8 rounds:
+
+- Visual Alt+Tab switcher inspection remains for R8 final manual RC pass; R3 verified `ShowInTaskbar=False` behavior through taskbar count and no `WS_EX_APPWINDOW`.
+
+Debug self-check:
+
+- Minimal workflow covered in R3: published app tray left-click opens popup, second left-click hides it, Escape hides it, outside click hides it, navigation buttons are clickable, no JIT crash appears.
+- Failure layer checked: Desktop tray event adapter, Desktop popup focus/deactivation handling, Desktop animation service, real published WPF/WinForms interaction.
+- Success/failure cases covered: visible popup after left click, no popup after second click/Escape/outside click, no taskbar button, no JIT window.
+- Registry/settings cleanup: R3 did not change settings or startup registry state.
+
+Architecture self-check:
+
+- All R3 changes stayed in Desktop UI/tray/animation code and Desktop tests.
+- No Domain/Application business rules were changed or duplicated.
+- No Infrastructure registry/file/JSON behavior changed.
 - No shell hook, Explorer injection, admin requirement, online dependency, or third-party package was introduced.

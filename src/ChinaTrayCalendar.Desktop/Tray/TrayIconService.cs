@@ -41,7 +41,7 @@ internal sealed class TrayIconService : IDisposable
             return;
         }
 
-        trayIcon.MouseUp -= OnTrayIconMouseUp;
+        trayIcon.MouseClick -= OnTrayIconMouseClick;
         trayIcon.Visible = false;
         trayIcon.ContextMenuStrip?.Dispose();
         trayIcon.ContextMenuStrip = null;
@@ -67,7 +67,7 @@ internal sealed class TrayIconService : IDisposable
         icon.Icon = SystemIcons.Application;
         icon.Text = DesktopStrings.AppName;
         icon.ContextMenuStrip = CreateContextMenu();
-        icon.MouseUp += OnTrayIconMouseUp;
+        icon.MouseClick += OnTrayIconMouseClick;
 
         return icon;
     }
@@ -94,7 +94,7 @@ internal sealed class TrayIconService : IDisposable
         return menu;
     }
 
-    private void OnTrayIconMouseUp(object? sender, MouseEventArgs e)
+    private void OnTrayIconMouseClick(object? sender, MouseEventArgs e)
     {
         if (e.Button == MouseButtons.Left)
         {
