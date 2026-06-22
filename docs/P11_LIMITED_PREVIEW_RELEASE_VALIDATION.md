@@ -77,9 +77,9 @@ D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64\Datevi
 
 ### R2 Preview Handoff Document
 
-- [ ] Create `docs/PREVIEW_RELEASE_HANDOFF.md`.
-- [ ] Include artifact, hash verification, unzip/run, exit, startup cleanup, uninstall, trust notes, and known limits.
-- [ ] Confirm no Windows security bypass instruction is present.
+- [x] Create `docs/PREVIEW_RELEASE_HANDOFF.md`.
+- [x] Include artifact, hash verification, unzip/run, exit, startup cleanup, uninstall, trust notes, and known limits.
+- [x] Confirm no Windows security bypass instruction is present.
 
 ### R3 Feedback Intake And Triage
 
@@ -177,3 +177,47 @@ Risk / blocked:
 
 - Physical multi-monitor and non-100% DPI live coverage remain preview validation gaps until suitable hardware/session coverage is available.
 - The preview remains unsigned by design for limited trusted distribution.
+
+### R2 - Preview Handoff Document
+
+Status: PASS
+
+Scope:
+
+- Added `docs/PREVIEW_RELEASE_HANDOFF.md`.
+- Documented the limited-preview file set: zip, `.sha256.txt`, and `.release.json`.
+- Documented SHA256 verification, unzip/run, tray usage, exit, startup cleanup, portable uninstall, Windows trust notes, and known preview limits.
+- Kept the handoff private-preview focused and avoided public release, store upload, or broad announcement instructions.
+
+Debug self-check:
+
+- Smallest preview workflow covered: a trusted tester receives the zip plus sidecars, verifies the hash, extracts the portable folder, runs Dateview, exits, and can uninstall/clean startup state.
+- Failure localization: tester failures can be localized to source/hash mismatch, extraction, tray visibility, run/exit behavior, startup cleanup, Windows trust prompts, or known hardware coverage gaps.
+- Hardware coverage: the handoff states the live validated environment is single-display, bottom-taskbar, `100%` scale / `96 DPI`, and keeps multi-monitor/non-100% DPI as preview feedback targets.
+- State cleanup: the handoff tells testers to turn off `Start with Windows` before moving/deleting the app and identifies the current-user Run value for stale-entry cleanup.
+- Generated artifacts: R2 did not generate or stage release artifacts.
+
+Architecture self-check:
+
+- R2 changes documentation only.
+- No runtime code, installer, signing, certificate, auto-update, telemetry, online API, Explorer/taskbar injection, Shell hook, HKLM write, or admin requirement was added.
+- The handoff preserves current-user portable distribution and offline bundled holiday data.
+- Windows trust guidance tells testers to keep Windows Security, Microsoft Defender, and SmartScreen enabled.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R2 start.
+- `git diff --check`: passed.
+- Security-bypass wording review: the handoff does not instruct testers to disable SmartScreen, Defender, or Windows Security; it explicitly says to keep them enabled.
+
+Release artifact/hash:
+
+- No new artifact generated in R2; R1 remains the latest P11 script-generated candidate evidence.
+
+Commit / push:
+
+- This R2 section is committed by the R2 P11 handoff commit.
+
+Risk / blocked:
+
+- None for R2.
