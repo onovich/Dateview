@@ -51,9 +51,9 @@ Generated artifacts remain ignored and uncommitted. Pre-existing untracked root 
 
 ### R3 Soft Open/Close Animation
 
-- [ ] Add deterministic soft entrance and exit animation behavior.
-- [ ] Keep transforms on popup content, never the WPF `Window`.
-- [ ] Add/update Desktop animation tests.
+- [x] Add deterministic soft entrance and exit animation behavior.
+- [x] Keep transforms on popup content, never the WPF `Window`.
+- [x] Add/update Desktop animation tests.
 
 ### R4 Tray Toggle Integration
 
@@ -177,3 +177,52 @@ Commit / push:
 Risk / blocked:
 
 - Manual tray visual inspection is deferred to R4/R6 smoke after animation/toggle integration.
+
+### R3 - Soft Open/Close Animation
+
+Status: PASS
+
+Scope:
+
+- Updated `PopupAnimationService` entrance animation from opacity plus translate-only to a restrained `170 ms` opacity plus content scale/translate ease-out.
+- Added `PlayExitAsync(Window)` with a `140 ms` soft opacity plus content scale/translate ease-in and task completion.
+- Kept all motion on popup content using `TransformGroup`, `ScaleTransform`, and `TranslateTransform`.
+- Continued to avoid assigning or animating `Window.RenderTransform`.
+- Reset visual state after exit animation completion so the next open starts from a clean opacity/scale/translate state.
+- Added Desktop tests covering entrance transform, entrance fallback without UIElement content, exit transform/task completion, exit fallback without UIElement content, and no top-level Window transform.
+
+Debug self-check:
+
+- Smallest user-visible workflow covered: popup opening and closing motion can be animated without bounce/overshoot and without invalid WPF `Window.RenderTransform` usage.
+- Failure localization: animation failures now localize to `PopupAnimationService` content transform preparation, entrance animation, exit animation completion, or fallback paths.
+- Open/close coverage: entrance, exit, non-UIElement fallback, and visual reset are covered; tray-click orchestration is deferred to R4.
+- `Window.RenderTransform`: tests continue to assert the WPF Window has no local `RenderTransform` value after entrance/exit setup.
+- State cleanup: R3 tests create and close WPF windows in STA threads; no Dateview app process, settings, startup registry value, display setting, or taskbar state is changed.
+
+Architecture self-check:
+
+- R3 changes stay in Desktop popup animation code and Desktop tests.
+- Domain/Application/Infrastructure remain unchanged.
+- No Explorer/taskbar injection, global hook, Shell hook, admin requirement, HKLM write, online dependency, telemetry, installer/signing work, public release, or upload was added.
+- Pre-existing untracked `BuildLatest.cmd` and `StartPreview.cmd` remain untouched and unstaged.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean tracked tree at R3 start, with only pre-existing untracked `BuildLatest.cmd` and `StartPreview.cmd`.
+- `dotnet test tests\ChinaTrayCalendar.Desktop.Tests\ChinaTrayCalendar.Desktop.Tests.csproj --configuration Release --filter FullyQualifiedName~PopupAnimationServiceTests`: passed.
+  - PopupAnimationService tests: `4` passed.
+- `dotnet format Dateview.slnx`: ran to normalize line endings after source/test edits.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+  - Domain tests: `33` passed.
+  - Application tests: `21` passed.
+  - Infrastructure tests: `37` passed.
+  - Desktop tests: `42` passed.
+  - `dotnet format --verify-no-changes`: passed.
+
+Commit / push:
+
+- This R3 section is committed by the R3 P12 animation commit.
+
+Risk / blocked:
+
+- Manual feel validation is deferred until R4/R6 after tray toggle integration uses the close animation.
