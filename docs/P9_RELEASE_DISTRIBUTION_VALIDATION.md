@@ -75,8 +75,8 @@ artifacts\release\
 
 ### Startup And Portable Smoke
 
-- [ ] Verify clean-user first run and settings path behavior.
-- [ ] Verify HKCU startup enable/disable and restore original state.
+- [x] Verify clean-user first run and settings path behavior.
+- [x] Verify HKCU startup enable/disable and restore original state.
 - [ ] Verify portable bundle unzip/run from a temporary folder.
 - [ ] Verify second instance exits successfully from the portable folder.
 - [ ] Verify holiday data loads from the portable relative `assets` directory.
@@ -332,8 +332,76 @@ Release artifact/hash:
 
 Commit / push:
 
-- Pending R4 commit.
+- `c3e498f docs: add portable release instructions` pushed.
 
 Risk / blocked:
 
 - None for R4.
+
+### R5 - Startup And Settings Clean-User Smoke
+
+Status: PASS
+
+Scope:
+
+- Backed up the current user's `%APPDATA%\ChinaTrayCalendar` directory state.
+- Backed up the current user's `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` value named `ChinaTrayCalendar`.
+- Cleared those two Dateview-specific states for a controlled first-run smoke.
+- Launched the published executable from the `win-x64` publish output.
+- Verified test settings creation/parsing/deletion and HKCU startup enable/disable cleanup.
+- Restored the original settings directory and startup value state.
+
+Debug self-check:
+
+- Fresh user path: with settings and startup state cleared, the published app started and remained running.
+- First-run behavior: the app did not create `settings.json` just by loading default settings.
+- Startup behavior: the app did not create the HKCU Run value just by starting.
+- Settings cleanup: a test `settings.json` was created, parsed, deleted, and left no test file residue.
+- Startup cleanup: a test quoted executable Run value was written, removed, and left no Run value residue.
+
+Architecture self-check:
+
+- R5 changes validation documentation only.
+- Runtime settings behavior remains in Infrastructure/Application and tray/UI behavior remains in Desktop.
+- No HKLM write, admin requirement, installer, auto-update, telemetry, online service, shell hook, Explorer injection, or taskbar modification added.
+- Existing automated tests still cover `JsonSettingsStore`, `WindowsAutoStartService`, and `SettingsViewModel` persistence/toggle behavior.
+
+Validation:
+
+- Published exe:
+
+```text
+D:\ToolProjects\Dateview\src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windows\win-x64\publish\ChinaTrayCalendar.Desktop.exe
+```
+
+- Original settings directory existed: `true`.
+- Original `ChinaTrayCalendar` HKCU Run value existed: `false`.
+- First-run process id: `6248`.
+- First-run `settings.json` created: `false`.
+- First-run HKCU Run value created: `false`.
+- Test settings file created and parsed: `true`.
+- Test settings file deleted: `true`.
+- Startup enable value:
+
+```text
+"D:\ToolProjects\Dateview\src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windows\win-x64\publish\ChinaTrayCalendar.Desktop.exe"
+```
+
+- Startup disable removed value: `true`.
+- Restore verification:
+  - Running Dateview process count: `0`.
+  - Settings directory exists after restore: `true`.
+  - Settings file exists after restore: `false`.
+  - HKCU Run value after restore: `null`.
+
+Release artifact/hash:
+
+- No new artifact generated in R5; R3 artifact remains the latest script-generated release evidence.
+
+Commit / push:
+
+- Pending R5 commit.
+
+Risk / blocked:
+
+- None for R5.
