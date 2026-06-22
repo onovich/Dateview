@@ -7,6 +7,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/ChinaTrayCalendar.Application.Tests/ChinaTrayCalendar.Application.Tests.csproj" />
+    <Project Path="tests/ChinaTrayCalendar.Desktop.Tests/ChinaTrayCalendar.Desktop.Tests.csproj" />
     <Project Path="tests/ChinaTrayCalendar.Domain.Tests/ChinaTrayCalendar.Domain.Tests.csproj" />
     <Project Path="tests/ChinaTrayCalendar.Infrastructure.Tests/ChinaTrayCalendar.Infrastructure.Tests.csproj" />
   </Folder>
