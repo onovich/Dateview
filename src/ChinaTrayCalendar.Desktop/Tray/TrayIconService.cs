@@ -6,13 +6,24 @@ namespace ChinaTrayCalendar.Desktop.Tray;
 internal sealed class TrayIconService : IDisposable
 {
     private readonly ITrayIconFactory trayIconFactory;
+    private readonly ITrayIconProvider trayIconProvider;
     private readonly Func<Point> getCursorPosition;
+    private Icon? ownedIcon;
     private ToolStripMenuItem? startWithWindowsItem;
     private ITrayIcon? trayIcon;
 
     public TrayIconService(ITrayIconFactory trayIconFactory, Func<Point>? getCursorPosition = null)
+        : this(trayIconFactory, new DateviewTrayIconProvider(), getCursorPosition)
+    {
+    }
+
+    internal TrayIconService(
+        ITrayIconFactory trayIconFactory,
+        ITrayIconProvider trayIconProvider,
+        Func<Point>? getCursorPosition = null)
     {
         this.trayIconFactory = trayIconFactory ?? throw new ArgumentNullException(nameof(trayIconFactory));
+        this.trayIconProvider = trayIconProvider ?? throw new ArgumentNullException(nameof(trayIconProvider));
         this.getCursorPosition = getCursorPosition ?? (() => Cursor.Position);
     }
 
@@ -43,9 +54,12 @@ internal sealed class TrayIconService : IDisposable
 
         trayIcon.MouseClick -= OnTrayIconMouseClick;
         trayIcon.Visible = false;
+        trayIcon.Icon = null;
         trayIcon.ContextMenuStrip?.Dispose();
         trayIcon.ContextMenuStrip = null;
         trayIcon.Dispose();
+        ownedIcon?.Dispose();
+        ownedIcon = null;
         startWithWindowsItem = null;
         trayIcon = null;
     }
@@ -64,7 +78,8 @@ internal sealed class TrayIconService : IDisposable
     private ITrayIcon CreateTrayIcon()
     {
         ITrayIcon icon = trayIconFactory.Create();
-        icon.Icon = SystemIcons.Application;
+        ownedIcon = trayIconProvider.CreateIcon();
+        icon.Icon = ownedIcon;
         icon.Text = DesktopStrings.AppName;
         icon.ContextMenuStrip = CreateContextMenu();
         icon.MouseClick += OnTrayIconMouseClick;

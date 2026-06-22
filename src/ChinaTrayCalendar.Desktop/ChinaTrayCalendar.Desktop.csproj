@@ -9,6 +9,8 @@
     <Content Include="..\..\assets\holidays\cn\*.json"
              Link="assets\holidays\cn\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="..\..\assets\icons\dateview.ico"
+                      LogicalName="DateviewIcon.ico" />
   </ItemGroup>
 
   <PropertyGroup>

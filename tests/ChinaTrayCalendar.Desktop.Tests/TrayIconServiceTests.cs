@@ -23,6 +23,34 @@ public sealed class TrayIconServiceTests
     }
 
     [Fact]
+    public void ShowReplacesGenericIconWithDateviewIcon()
+    {
+        FakeTrayIconFactory factory = new();
+        using TrayIconService service = new(factory);
+
+        service.Show();
+
+        FakeTrayIcon icon = Assert.Single(factory.CreatedIcons);
+        Assert.NotNull(icon.Icon);
+        Assert.NotSame(icon.InitialIcon, icon.Icon);
+        Assert.Equal(new Size(32, 32), icon.Icon.Size);
+    }
+
+    [Fact]
+    public void ShowUsesProvidedIconFromIconProvider()
+    {
+        FakeTrayIconFactory factory = new();
+        FakeTrayIconProvider iconProvider = new();
+        using TrayIconService service = new(factory, iconProvider);
+
+        service.Show();
+
+        FakeTrayIcon icon = Assert.Single(factory.CreatedIcons);
+        Assert.Same(iconProvider.CreatedIcon, icon.Icon);
+        Assert.Equal(1, iconProvider.CreateCount);
+    }
+
+    [Fact]
     public void ShowReusesExistingTrayIcon()
     {
         FakeTrayIconFactory factory = new();
@@ -238,7 +266,9 @@ public sealed class TrayIconServiceTests
     {
         public event MouseEventHandler? MouseClick;
 
-        public Icon? Icon { get; set; } = SystemIcons.Application;
+        public Icon InitialIcon { get; } = SystemIcons.Application;
+
+        public Icon? Icon { get; set; }
 
         public ContextMenuStrip? ContextMenuStrip { get; set; }
 
@@ -248,6 +278,11 @@ public sealed class TrayIconServiceTests
 
         public bool IsDisposed { get; private set; }
 
+        public FakeTrayIcon()
+        {
+            Icon = InitialIcon;
+        }
+
         public void Dispose()
         {
             IsDisposed = true;
@@ -256,6 +291,21 @@ public sealed class TrayIconServiceTests
         public void RaiseMouseClick(MouseButtons mouseButton)
         {
             MouseClick?.Invoke(this, new MouseEventArgs(mouseButton, clicks: 1, x: 0, y: 0, delta: 0));
+        }
+    }
+
+    private sealed class FakeTrayIconProvider : ITrayIconProvider
+    {
+        public Icon? CreatedIcon { get; private set; }
+
+        public int CreateCount { get; private set; }
+
+        public Icon CreateIcon()
+        {
+            CreateCount++;
+            CreatedIcon = new Icon(SystemIcons.Information, width: 32, height: 32);
+
+            return CreatedIcon;
         }
     }
 }

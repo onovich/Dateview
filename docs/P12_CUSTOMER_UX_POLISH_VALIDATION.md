@@ -44,10 +44,10 @@ Generated artifacts remain ignored and uncommitted. Pre-existing untracked root 
 
 ### R2 Icon Completion
 
-- [ ] Make the tray icon use the Dateview icon asset or embedded application icon instead of `SystemIcons.Application`.
-- [ ] Keep icon ownership/disposal correct.
-- [ ] Add/update Desktop tests so the tray icon is not the generic system application icon.
-- [ ] Verify package/publish still has coherent application icon evidence.
+- [x] Make the tray icon use the Dateview icon asset or embedded application icon instead of `SystemIcons.Application`.
+- [x] Keep icon ownership/disposal correct.
+- [x] Add/update Desktop tests so the tray icon is not the generic system application icon.
+- [x] Verify package/publish still has coherent application icon evidence.
 
 ### R3 Soft Open/Close Animation
 
@@ -124,3 +124,56 @@ Commit / push:
 Risk / blocked:
 
 - None for R1.
+
+### R2 - Icon Completion
+
+Status: PASS
+
+Scope:
+
+- Added `DateviewIcon.ico` as an embedded Desktop assembly resource sourced from `assets\icons\dateview.ico`.
+- Added `ITrayIconProvider` and `DateviewTrayIconProvider`.
+- Updated `TrayIconService` to obtain its tray icon from the provider instead of assigning `SystemIcons.Application`.
+- Updated `TrayIconService` disposal to clear the NotifyIcon adapter icon and dispose the owned tray icon.
+- Added Desktop tests proving `Show()` replaces the fake generic icon and that an injected icon provider supplies the tray icon.
+- Verified the published executable still exposes a `32x32` associated application icon.
+
+Debug self-check:
+
+- Smallest user-visible workflow covered: app startup creates a tray icon using Dateview-specific icon data instead of the generic system application icon.
+- Failure localization: icon failures localize to embedded icon resource inclusion, `DateviewTrayIconProvider`, `TrayIconService` assignment, or icon disposal.
+- Open/close paths were not changed in R2 and remain for R3/R4.
+- `Window.RenderTransform` is unaffected by R2.
+- State cleanup: R2 did not launch Dateview, mutate settings, write startup registry values, change display settings, or alter desktop/taskbar state.
+
+Architecture self-check:
+
+- R2 changes stay in Desktop tray code, Desktop project resource configuration, and Desktop tests.
+- Domain/Application/Infrastructure remain free of WPF, WinForms tray icon, icon resource, and animation state.
+- No Explorer/taskbar injection, global hook, Shell hook, admin requirement, HKLM write, online dependency, telemetry, installer/signing work, public release, or upload was added.
+- Pre-existing untracked `BuildLatest.cmd` and `StartPreview.cmd` remain untouched and unstaged.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean tracked tree at R2 start, with only pre-existing untracked `BuildLatest.cmd` and `StartPreview.cmd`.
+- `dotnet test tests\ChinaTrayCalendar.Desktop.Tests\ChinaTrayCalendar.Desktop.Tests.csproj --configuration Release --filter FullyQualifiedName~TrayIconServiceTests`: passed.
+  - TrayIconService tests: `15` passed.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed after formatting line endings.
+  - Domain tests: `33` passed.
+  - Application tests: `21` passed.
+  - Infrastructure tests: `37` passed.
+  - Desktop tests: `40` passed.
+  - `dotnet format --verify-no-changes`: passed.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed.
+- Published icon evidence:
+  - Published exe: `src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windows\win-x64\publish\ChinaTrayCalendar.Desktop.exe`
+  - Associated icon: `32x32`
+  - Desktop assembly embedded resource `DateviewIcon.ico`: present.
+
+Commit / push:
+
+- This R2 section is committed by the R2 P12 icon completion commit.
+
+Risk / blocked:
+
+- Manual tray visual inspection is deferred to R4/R6 smoke after animation/toggle integration.
