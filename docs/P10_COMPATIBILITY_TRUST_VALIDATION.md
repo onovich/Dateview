@@ -68,9 +68,9 @@ Compatibility matrix:
 
 ### R3 DPI And Scaling Spot Check
 
-- [ ] Record non-100% DPI result or limitation.
-- [ ] Confirm DPI-aware placement path and tests.
-- [ ] Verify key text/control fit evidence.
+- [x] Record non-100% DPI result or limitation.
+- [x] Confirm DPI-aware placement path and tests.
+- [x] Verify key text/control fit evidence.
 
 ### R4 Windows Trust Prompt Documentation
 
@@ -214,9 +214,81 @@ Release artifact/hash:
 
 Commit / push:
 
-- Pending R2 commit.
+- `70c4a1f compat: record display placement limits` pushed.
 
 Risk / blocked:
 
 - Physical multi-monitor spot check remains pending for hardware that exposes more than one display.
 - Physical alternate taskbar-edge spot checks remain pending for a safe manual desktop QA pass.
+
+### R3 - DPI And Scaling Spot Check
+
+Status: PASS WITH LIMITATIONS
+
+Scope:
+
+- Reconfirmed current effective DPI is `96x96` and current display scale is `100%`.
+- Reviewed DPI-aware placement code path.
+- Reviewed popup/settings XAML layout constraints.
+- Ran focused Desktop tests that construct/show popup and settings windows and exercise associated view models.
+- Chose not to programmatically change display scale because it affects the user's desktop session and is not a safe automated executor mutation.
+
+Non-100% DPI result:
+
+- Not physically tested in this environment during R3.
+- Current live environment remains `100%` scale.
+- The risk remains a coverage limitation, not a known defect.
+
+DPI-aware implementation evidence:
+
+- `src\ChinaTrayCalendar.Desktop\ChinaTrayCalendar.Desktop.csproj` sets `ApplicationHighDpiMode` to `PerMonitorV2`.
+- `PopupWindowPlacer` obtains WPF DPI through `VisualTreeHelper.GetDpi(window)`.
+- `PopupWindowPlacer` converts fixed WPF popup dimensions from DIPs to physical pixels before placement and converts final pixel coordinates back to DIPs.
+- `PopupPlacementCalculator` uses pixel-space screen bounds and working area, then clamps the popup within the working area.
+
+Text/control fit evidence:
+
+- `CalendarPopupWindow.xaml`
+  - Fixed window size: `360x420`.
+  - Header buttons: fixed `36x32`.
+  - Day grid: `UniformGrid` with `7` columns and `6` rows.
+  - Badges use one-character labels: `末`, `休`, `班`, `节`.
+  - Navigation buttons use compact symbols/text: `‹`, `今`, `›`, `×`.
+- `SettingsWindow.xaml`
+  - Fixed window size: `360x260`.
+  - Two-column layout with a `116` DIP label column and flexible input column.
+  - Action buttons use `MinWidth=76`.
+- Automated window tests construct or show these WPF windows under the current 100% DPI session.
+
+Debug self-check:
+
+- Minimal fixture: current machine gives 96 DPI live evidence only.
+- Failure localization: DPI placement issues would localize to `ApplicationHighDpiMode`, `VisualTreeHelper.GetDpi`, pixel/DIP conversion, or working-area clamping.
+- Coverage: live 100% DPI window construction and view-model tests pass; non-100% DPI remains explicitly not claimed.
+- Text fit: key visible labels are short Chinese strings or compact symbols; window tests confirm current-DPI construction/show paths do not fail.
+
+Architecture self-check:
+
+- R3 changes documentation only.
+- DPI evidence stays in Desktop WPF placement/window layer.
+- No Domain/Application/Infrastructure behavior changed.
+- No display-setting mutation, installer, signing, auto-update, online service, telemetry, shell hook, Explorer injection, HKLM write, or admin requirement added.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R3 start.
+- `dotnet test tests\ChinaTrayCalendar.Desktop.Tests\ChinaTrayCalendar.Desktop.Tests.csproj --configuration Release --filter "FullyQualifiedName~CalendarViewModelTests|FullyQualifiedName~SettingsViewModelTests"`: passed.
+  - `12` tests passed.
+  - Covered popup construction, popup shell properties, Escape hide path, month/title/header behavior, Settings window show path, settings save/error behavior, and startup checkbox view-model flow.
+
+Release artifact/hash:
+
+- No new artifact generated in R3; R1 bundle remains the latest P10 script-generated baseline.
+
+Commit / push:
+
+- Pending R3 commit.
+
+Risk / blocked:
+
+- Physical non-100% DPI spot check remains pending for a safe manual desktop QA pass or alternate hardware/session.
