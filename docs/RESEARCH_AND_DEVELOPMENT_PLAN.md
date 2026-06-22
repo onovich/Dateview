@@ -1,5 +1,10 @@
 # Dateview 研发方案
 
+具体执行文档见：
+
+- [Dateview P0-P7 Goal 模式执行指南](P0_P7_GOAL_MODE_EXECUTION_GUIDE.md)
+- [Dateview 分阶段研发计划](PHASED_RESEARCH_AND_DEVELOPMENT_PLAN.md)
+
 ## 项目理解
 
 Dateview 是一个面向 Windows 的轻量托盘日历工具。核心体验不是“独立日历应用”，而是从任务栏自然弹出的时间感知增强层：普通用户权限运行、离线优先、无遥测、不修改 Explorer、不注入任务栏，使用托盘图标承载入口。
