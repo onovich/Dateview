@@ -1,4 +1,5 @@
 using System.Text;
+using ChinaTrayCalendar.Application.Ports;
 using ChinaTrayCalendar.Domain;
 using ChinaTrayCalendar.Infrastructure.Holidays;
 
@@ -48,10 +49,23 @@ public sealed class JsonHolidayRepositoryTests
         using TestHolidayDirectory directory = new();
         JsonHolidayRepository repository = new(directory.DirectoryPath);
 
-        HolidayDataException exception = await Assert.ThrowsAsync<HolidayDataException>(
+        HolidayDataUnavailableException exception = await Assert.ThrowsAsync<HolidayDataUnavailableException>(
             () => repository.GetHolidayDaysAsync(2026, CancellationToken.None));
 
+        Assert.Equal(2026, exception.Year);
         Assert.Contains("Holiday data file for year '2026' was not found", exception.Message);
+    }
+
+    [Fact]
+    public async Task GetHolidayDaysAsyncCanBeUsedThroughApplicationPort()
+    {
+        using TestHolidayDirectory directory = new();
+        directory.WriteYear(2026, CreateJson("Yuan Dan"));
+        IHolidayRepository repository = new JsonHolidayRepository(directory.DirectoryPath);
+
+        IReadOnlyList<HolidayDay> days = await repository.GetHolidayDaysAsync(2026, CancellationToken.None);
+
+        Assert.Equal("Yuan Dan", Assert.Single(days).Name);
     }
 
     [Fact]

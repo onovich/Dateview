@@ -25,7 +25,7 @@ public sealed class AsyncRelayCommand : ICommand
 
     public async void Execute(object? parameter)
     {
-        await ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+        await ExecuteAsync(CancellationToken.None);
     }
 
     public async Task ExecuteAsync(CancellationToken cancellationToken = default)
@@ -39,7 +39,7 @@ public sealed class AsyncRelayCommand : ICommand
         {
             isExecuting = true;
             RaiseCanExecuteChanged();
-            await executeAsync(cancellationToken).ConfigureAwait(false);
+            await executeAsync(cancellationToken);
         }
         finally
         {

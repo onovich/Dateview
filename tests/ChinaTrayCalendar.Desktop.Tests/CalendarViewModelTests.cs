@@ -86,6 +86,21 @@ public sealed class CalendarViewModelTests
         Assert.True(closeRequested);
     }
 
+    [Fact]
+    public async Task LoadAsyncSurfacesErrorState()
+    {
+        FakeClock clock = new(new DateOnly(2026, 6, 22));
+        FailingHolidayRepository holidayRepository = new();
+        GetMonthCalendarUseCase useCase = new(clock, holidayRepository);
+        CalendarViewModel viewModel = new(useCase, clock);
+
+        await viewModel.LoadAsync();
+
+        Assert.Equal("日历加载失败", viewModel.ErrorMessage);
+        Assert.Empty(viewModel.Cells);
+        Assert.False(viewModel.IsLoading);
+    }
+
     private static CalendarViewModel CreateViewModel(FakeClock clock)
     {
         FakeHolidayRepository holidayRepository = new();
@@ -118,6 +133,16 @@ public sealed class CalendarViewModelTests
         public void SetYear(int year, IReadOnlyList<HolidayDay> holidays)
         {
             holidaysByYear[year] = holidays;
+        }
+    }
+
+    private sealed class FailingHolidayRepository : IHolidayRepository
+    {
+        public Task<IReadOnlyList<HolidayDay>> GetHolidayDaysAsync(
+            int year,
+            CancellationToken cancellationToken)
+        {
+            throw new InvalidOperationException($"Cannot load {year}.");
         }
     }
 }

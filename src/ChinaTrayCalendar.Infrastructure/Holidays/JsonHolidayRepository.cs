@@ -1,9 +1,10 @@
 using System.Text;
+using ChinaTrayCalendar.Application.Ports;
 using ChinaTrayCalendar.Domain;
 
 namespace ChinaTrayCalendar.Infrastructure.Holidays;
 
-public sealed class JsonHolidayRepository
+public sealed class JsonHolidayRepository : IHolidayRepository
 {
     private readonly Dictionary<int, IReadOnlyList<HolidayDay>> cache = [];
     private readonly object cacheLock = new();
@@ -36,7 +37,8 @@ public sealed class JsonHolidayRepository
         string filePath = Path.Combine(holidayDirectoryPath, FormattableString.Invariant($"{year:D4}.json"));
         if (!File.Exists(filePath))
         {
-            throw new HolidayDataException(
+            throw new HolidayDataUnavailableException(
+                year,
                 $"Holiday data file for year '{year}' was not found at '{filePath}'.");
         }
 

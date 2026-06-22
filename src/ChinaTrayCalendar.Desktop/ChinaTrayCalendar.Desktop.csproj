@@ -5,6 +5,12 @@
     <ProjectReference Include="..\ChinaTrayCalendar.Infrastructure\ChinaTrayCalendar.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\..\assets\holidays\cn\*.json"
+             Link="assets\holidays\cn\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>

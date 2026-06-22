@@ -119,8 +119,7 @@ public sealed class CalendarViewModel : INotifyPropertyChanged
         try
         {
             MonthCalendarDto calendar = await getMonthCalendarUseCase
-                .ExecuteAsync(month, firstDayOfWeek, cancellationToken)
-                .ConfigureAwait(false);
+                .ExecuteAsync(month, firstDayOfWeek, cancellationToken);
             DisplayedMonth = calendar.Month;
             Cells = calendar.Days;
         }
