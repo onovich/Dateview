@@ -45,8 +45,8 @@ Pre-existing untracked root helper scripts are preserved and not staged:
 | Outside/deactivation closes popup | PASS | R2 foregrounded the popup and clicked outside; foreground moved to Codex and UIA no longer found the popup. A pure automated outside click while the popup was not foregrounded did not exercise `Deactivated`, so that specific automation path is recorded as a limitation, not a product pass claim. |
 | Open animation feels calm/soft with no obvious bounce/shake | LIMITED | R2 exercised the real open path without JIT/crash and captured stable final frames. Subjective motion feel still needs human live observation because still screenshots cannot prove smoothness. Existing P12 code evidence remains `170 ms` opacity plus content scale/translate ease-out. |
 | Close animation feels calm/soft | LIMITED | R2 exercised tray toggle, Escape, and deactivation close without JIT/crash and captured hidden final states. Subjective motion feel still needs human live observation because still screenshots cannot prove smoothness. Existing P12 code evidence remains `140 ms` opacity plus content scale/translate ease-in. |
-| Second instance exits cleanly | PENDING | R3 package/process smoke |
-| No Dateview process remains after exit/cleanup | PASS | R2 invoked `退出` from the real tray right-click menu; `Get-Process ChinaTrayCalendar.Desktop` returned no remaining process. R3 will repeat process smoke on the fresh package. |
+| Second instance exits cleanly | PASS | R3 portable smoke launched a second instance from the extracted package; it exited with code `0` while the first instance remained running. |
+| No Dateview process remains after exit/cleanup | PASS | R2 invoked `退出` from the real tray right-click menu with no process remaining. R3 portable smoke force-cleaned the first process after second-instance validation and confirmed no remaining `ChinaTrayCalendar.Desktop` process. |
 | Settings/startup state is not changed or is restored | PASS | R2 checked `HKCU:\Software\Microsoft\Windows\CurrentVersion\Run` value `Dateview`; it remained absent before and after smoke. |
 
 ## Environment
@@ -79,9 +79,9 @@ Pre-existing untracked root helper scripts are preserved and not staged:
 
 ### R3 Package And Feedback Reconciliation
 
-- [ ] Run package/release smoke.
-- [ ] Confirm zip/hash/manifest/basic process smoke.
-- [ ] Map findings to `fix-now`, `document`, `defer`, or `needs hardware reproduction`.
+- [x] Run package/release smoke.
+- [x] Confirm zip/hash/manifest/basic process smoke.
+- [x] Map findings to `fix-now`, `document`, `defer`, or `needs hardware reproduction`.
 
 ### R4 Buffer Repair
 
@@ -196,8 +196,91 @@ Validation:
 
 Commit / push:
 
-- R2 evidence document commit: pending.
+- R2 evidence document commit: `06da922`, pushed to `origin/main`.
 
 Risk / blocked:
 
 - No P12 blocker found. Remaining issues are acceptance limitations for human preview / hardware or Windows user-profile reproduction.
+
+### R3 - Package And Feedback Reconciliation
+
+Status: PASS
+
+Scope:
+
+- Regenerated the folder publish output with `Package.cmd`.
+- Regenerated the release bundle with `scripts\package-release.ps1`.
+- Verified zip hash, release metadata, release manifest, packaged holiday JSON, associated executable icon, portable launch, second-instance behavior, and cleanup.
+- Mapped the remaining R2 limitations to feedback triage outcomes.
+- Left implementation code unchanged.
+
+Package / artifact evidence:
+
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\package-release.ps1`: passed.
+- Zip: `artifacts\release\Dateview-0.1.0-preview-win-x64.zip`.
+- Zip bytes: `176394`.
+- SHA256: `c9a69ee1cff8953cd58782f6e96f0308ea04f7ce85e6d99ae31dd40a80c46922`.
+- SHA256 file: `c9a69ee1cff8953cd58782f6e96f0308ea04f7ce85e6d99ae31dd40a80c46922  Dateview-0.1.0-preview-win-x64.zip`.
+- Release metadata `gitCommit`: `06da922`.
+- Release metadata `generatedAtUtc`: `2026-06-22T14:57:43.7378703+00:00`.
+- Release manifest: schema version `1`, product `Dateview`, files `13`.
+- Holiday JSON parse, using explicit UTF-8:
+  - `2025.json`: schema version `1`, jurisdiction `CN`, days `33`, source title `国务院办公厅关于2025年部分节假日安排的通知`.
+  - `2026.json`: schema version `1`, jurisdiction `CN`, days `39`, source title `国务院办公厅关于2026年部分节假日安排的通知`.
+- Packaged executable associated icon: `32x32`.
+
+Process smoke evidence:
+
+- Portable extraction temp path: `C:\Users\Administrator\AppData\Local\Temp\Dateview-P13-R3-20260622-231113`.
+- Portable executable: `Dateview\ChinaTrayCalendar.Desktop.exe` under the extracted temp folder.
+- First instance PID: `24344`, responding, no main window title.
+- Second instance exit code: `0`.
+- After second-instance launch, first instance remained running and responding.
+- Cleanup stopped the first process; no `ChinaTrayCalendar.Desktop` process remained.
+- Temp extraction directory was removed after path safety verification.
+
+Notes from smoke implementation:
+
+- The first JSON smoke attempt used Windows PowerShell's default text decoding and corrupted UTF-8 holiday JSON before parsing. The successful smoke used `Get-Content -Encoding UTF8`; this is a validation script detail, not a package defect.
+- The zip root is `Dateview\...`, not `Dateview-0.1.0-preview-win-x64\Dateview\...`; the successful portable smoke used the correct extracted path.
+
+Feedback triage:
+
+- `fix-now`: none. No P12 blocker or runtime crash was found.
+- `document`: record the UTF-8 parsing detail in this P13 validation report for future Windows PowerShell smoke commands.
+- `defer`: subjective animation feel remains for live human preview because P13 automated evidence can show the path completes and the final states are stable, but not how the motion feels.
+- `needs hardware reproduction`: tray overflow placement/click remains limited because this Windows user profile currently shows Dateview in the normal notification area, not inside overflow. Reproduce on a machine/profile where Dateview is in overflow or after a tester manually moves it there.
+
+Debug self-check:
+
+- Real user workflow covered: package integrity, preview handoff artifact, portable launch, second-instance guard, process cleanup, packaged icon, and bundled holiday data.
+- Failure localization: any future package issue can be localized to publish output, release zip/hash/manifest, UTF-8 holiday parsing, icon association, single-instance behavior, or cleanup.
+- Evidence type: R3 used generated release artifacts and process smoke from an extracted portable package.
+- State cleanup: the extracted temp directory was removed and no Dateview process remained.
+- Subjective observations: none added in R3.
+
+Architecture self-check:
+
+- R3 remained validation/docs-only.
+- No Desktop runtime code changed in R3.
+- Domain/Application/Infrastructure remain unchanged.
+- No Explorer/taskbar injection, global hook, Shell hook, admin requirement, HKLM write, online dependency, telemetry, installer/signing work, public release, or upload was added.
+- Generated release artifacts remain ignored and uncommitted.
+- Pre-existing untracked `BuildLatest.cmd` and `StartPreview.cmd` remain untouched and unstaged.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: tracked tree clean at R3 start; only pre-existing untracked `BuildLatest.cmd` and `StartPreview.cmd`.
+- `Package.cmd`: passed.
+- `package-release.ps1`: passed.
+- Portable package smoke: passed.
+- `git diff --check`: passed after this R3 document update.
+
+Commit / push:
+
+- R3 package smoke document commit: pending.
+
+Risk / blocked:
+
+- No blocker. R4 buffer is currently unused.
