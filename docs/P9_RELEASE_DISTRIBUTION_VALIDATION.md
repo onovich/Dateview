@@ -89,6 +89,13 @@ artifacts\release\
 - [ ] Record final artifact path and SHA256.
 - [ ] Record residual risk and final release distribution status.
 
+## Residual Risk Register
+
+- Physical multi-monitor behavior could not be spot-checked on this machine because P8 recorded only one available display, `DISPLAY1`.
+- Non-100% DPI behavior could not be safely changed during P8/P9 automated validation; P8 recorded live 96 DPI evidence and placement geometry tests cover taskbar-edge containment.
+- These are validation coverage risks, not known functional failures. Repeat physical multi-monitor and alternate-DPI spot checks on suitable hardware before a broader public release.
+- The app and bundle remain unsigned in P9. SHA256 is only an integrity check, not code signing.
+
 ## Round Log
 
 ### R1 - Distribution Strategy And Baseline Package
@@ -477,8 +484,47 @@ Release artifact/hash:
 
 Commit / push:
 
-- Pending R6 commit.
+- `0b2eec4 docs: record portable bundle smoke` pushed.
 
 Risk / blocked:
 
 - None for R6.
+
+### R7 - Release Notes And Validation Documentation
+
+Status: PASS
+
+Scope:
+
+- Updated `docs\RELEASE_NOTES.md` with hash verification instructions, validation status, holiday-data coverage, and known validation risks.
+- Added this residual risk register to `docs\P9_RELEASE_DISTRIBUTION_VALIDATION.md`.
+- Carried forward the P8 multi-monitor and non-100% DPI coverage limitations explicitly.
+
+Debug self-check:
+
+- Fresh user path: release notes describe the portable zip plus `.sha256.txt` verification path without requiring an installer.
+- Failure localization: release notes distinguish unsigned-code limitations, hash integrity checks, tray overflow behavior, holiday-data coverage, and hardware-specific validation gaps.
+- Hash loop avoidance: release notes point users to the generated `.sha256.txt` and the validation document for exact artifact hashes instead of embedding a self-invalidating hash in release notes.
+
+Architecture self-check:
+
+- R7 changes documentation only.
+- No runtime behavior, dependencies, installer tooling, online service, auto-update, telemetry, shell hook, Explorer injection, HKLM write, or admin requirement added.
+- Release notes avoid promising unimplemented installer/update/sync behavior.
+
+Validation:
+
+- `git diff --check`: passed.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+
+Release artifact/hash:
+
+- No new artifact generated in R7; R6 artifact remains the latest script-generated release evidence.
+
+Commit / push:
+
+- Pending R7 commit.
+
+Risk / blocked:
+
+- None for R7.
