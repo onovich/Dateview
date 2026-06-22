@@ -63,17 +63,17 @@ Generated artifacts remain ignored and uncommitted. Pre-existing untracked root 
 
 ### R5 Buffer Repair
 
-- [ ] Use only if icon asset, animation timing, toggle race, tests, or docs need repair.
+- [x] Not used; no additional icon asset, animation timing, toggle race, test, or docs repair was needed.
 
 ### R6 Final Validation
 
-- [ ] Run final `Validate.cmd`.
-- [ ] Run final `Package.cmd`.
-- [ ] Run final `package-release.ps1`.
-- [ ] Run final `git diff --check`.
-- [ ] Run final boundary scan.
-- [ ] Record manual smoke or environment limitation.
-- [ ] Push all P12 commits.
+- [x] Run final `Validate.cmd`.
+- [x] Run final `Package.cmd`.
+- [x] Run final `package-release.ps1`.
+- [x] Run final `git diff --check`.
+- [x] Run final boundary scan.
+- [x] Record manual smoke or environment limitation.
+- [x] Push all P12 commits.
 
 ## Round Log
 
@@ -291,3 +291,142 @@ Commit / push:
 Risk / blocked:
 
 - Human visual confirmation of tray icon appearance and animation feel is still recommended on a real desktop tray session.
+
+### R5 - Buffer Repair
+
+Status: NOT USED
+
+No additional icon asset repair, animation timing adjustment, toggle race fix, test reliability fix, or documentation note was required after R4.
+
+### R6 - Final Validation
+
+Status: PASS
+
+Scope:
+
+- Ran final validation.
+- Ran final publish/package.
+- Regenerated the final pre-report release bundle.
+- Verified zip SHA256 sidecar matching.
+- Verified published app icon evidence.
+- Ran final portable unzip/run smoke from a temp non-repo path.
+- Re-ran source/test/script boundary scan for prohibited P12 scope.
+- Recorded manual tray visual inspection limitation.
+- Confirmed generated artifacts remain ignored and uncommitted.
+
+Final artifact:
+
+```text
+D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64.zip
+```
+
+Final pre-report SHA256:
+
+```text
+3fab410fb0f2b9ddd53b632b3657e3ecd701d3e0afea6b4952b8e3cfcf71445b
+```
+
+Icon evidence:
+
+- `assets\icons\dateview.ico`: readable `32x32` icon, SHA256 `7D2EE64C957BF5849C3669434FA03834496094AC3504D3B793767D4463D25BA7`.
+- Desktop project embeds `DateviewIcon.ico`.
+- Final package executable associated icon: `32x32`.
+- Final package Desktop assembly embedded resource `DateviewIcon.ico`: present.
+- Tray icon assignment is supplied by `DateviewTrayIconProvider`, not `SystemIcons.Application`.
+
+Animation / toggle evidence:
+
+- Open animation: `170 ms` opacity + content scale/translate ease-out.
+- Close animation: `140 ms` opacity + content scale/translate ease-in via `PlayExitAsync`.
+- All animation transforms are applied to popup content, not the WPF `Window`.
+- Tray click when hidden opens; tray click when visible starts animated close; tray click during close queues the latest reopen point.
+- Escape, view-model close, and deactivation request paths route through App's animated close path.
+- A delayed deactivation-dismiss timer avoids the tray-click/deactivation ordering race that could otherwise make a close click reopen immediately.
+
+Debug self-check:
+
+- Smallest user-visible workflow covered: current package has Dateview-specific icon data, soft popup open/close animation code, tray-click close toggle state, and portable launch/single-instance smoke.
+- Failure localization: failures can be localized to icon provider/resource, tray adapter/service, popup animation service, App popup orchestration, CalendarPopupWindow dismiss request, or package generation.
+- Open/close/repeated click/Escape/deactivation: automated tests cover animation service, Escape dismiss request, and repeated-click state; process smoke covers startup/single-instance cleanup; direct visual tray clicking remains a manual limitation.
+- `Window.RenderTransform`: final tests verify no local `Window.RenderTransform` is set for entrance/exit setup.
+- State cleanup: final smoke stopped the test process, removed the temp extraction directory, and left no Dateview process running. It did not mutate startup registry, settings, display scale, or taskbar settings.
+
+Architecture self-check:
+
+- R6 changes validation documentation only.
+- P12 source changes stayed in Desktop tray, Desktop popup placement/animation/orchestration, Desktop window event bridging, and Desktop tests.
+- Domain/Application/Infrastructure remain unchanged for P12.
+- No Explorer/taskbar injection, global hook, Shell hook, admin requirement, HKLM write, online dependency, telemetry, installer/signing work, public release, or upload was added.
+- Generated release artifacts remain under ignored `artifacts\release`.
+- Pre-existing untracked `BuildLatest.cmd` and `StartPreview.cmd` remain untouched and unstaged.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean tracked tree at R6 start, with only pre-existing untracked `BuildLatest.cmd` and `StartPreview.cmd`.
+- Running Dateview process check before final validation: none found.
+- R6 start HEAD: `5fc113b`.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+  - Domain tests: `33` passed.
+  - Application tests: `21` passed.
+  - Infrastructure tests: `37` passed.
+  - Desktop tests: `46` passed.
+  - `dotnet format --verify-no-changes`: passed.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\package-release.ps1`: passed.
+  - Bundle name: `Dateview-0.1.0-preview-win-x64`
+  - Zip bytes: `176373`
+  - Zip SHA256: `3fab410fb0f2b9ddd53b632b3657e3ecd701d3e0afea6b4952b8e3cfcf71445b`
+  - Metadata git commit: `5fc113b`
+- Final `git diff --check`: passed.
+- Boundary scan over `src`, `tests`, and `scripts` for prohibited scope keywords (`HKLM`, `HKEY_LOCAL_MACHINE`, `SetWindowsHookEx`, `Shell_NotifyIcon`, telemetry, auto-update, installer/signing/public-release/upload/hook indicators): no matches.
+- Final package icon check: passed.
+  - Packaged exe associated icon: `32x32`
+  - Packaged Desktop assembly embedded `DateviewIcon.ico`: present.
+- Final portable smoke: passed.
+  - Zip: `D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64.zip`
+  - Zip bytes: `176373`
+  - Zip SHA256: `3fab410fb0f2b9ddd53b632b3657e3ecd701d3e0afea6b4952b8e3cfcf71445b`
+  - SHA256 sidecar matched: `true`
+  - Metadata git commit: `5fc113b`
+  - Manifest git commit: `5fc113b`
+  - Manifest file count: `13`
+  - Extracted exe associated icon: `32x32`
+  - Temp root: `C:\Users\Administrator\AppData\Local\Temp\Dateview-P12R6-c5c39976033b44c89a94fb8c97aa2242`
+  - `2025.json` days: `33`
+  - `2026.json` days: `39`
+  - Primary process id: `16848`
+  - Second instance exit code: `0`
+  - Temp root removed: `true`
+  - Running Dateview process count after cleanup: `0`
+
+Manual smoke:
+
+- Build/start process smoke passed from packaged portable output.
+- Direct visual system-tray clicking and subjective animation feel inspection are not reliably automatable in this executor environment.
+- Human preview smoke is still recommended for:
+  - Tray icon visual appearance in normal tray and overflow.
+  - Left-click tray open.
+  - Left-click tray close with soft animation.
+  - Reopen after close.
+  - Escape close animation.
+  - Outside/deactivation close animation.
+
+Notes:
+
+- An initial final-smoke script attempted to inspect the extracted Desktop DLL with `Assembly.LoadFrom`, which locked the temp DLL and prevented cleanup. The temp directory was verified under `%TEMP%`, removed after the PowerShell process released the lock, and the smoke was rerun without loading the temp DLL. The rerun passed and left no process/temp residue.
+- The final pre-report bundle metadata points to `5fc113b`; this final validation documentation commit follows bundle generation to avoid a self-invalidating hash loop.
+
+P12 readiness status:
+
+- PASS for customer UX polish implementation and automated validation.
+- Visual tray/animation feel should still receive human preview confirmation on a real desktop tray session.
+
+Commit / push:
+
+- This R6 section is committed by the final P12 completion commit and pushed before the executor completion report.
+
+Residual risks:
+
+- Human subjective animation feel cannot be fully proven by automation.
+- System tray overflow behavior can vary by Windows user settings and should be checked manually by preview testers.
+- Physical multi-monitor and non-100% DPI coverage remain broader preview validation gaps from P10/P11.
