@@ -44,6 +44,15 @@ Do not run the zip if:
 
 Dateview is a portable preview. It does not have an installer.
 
+For local project-side manual testing before handoff, run these commands from the repository root:
+
+```cmd
+BuildLatest.cmd
+StartPreview.cmd
+```
+
+`BuildLatest.cmd` refreshes the preview bundle under `artifacts\release`. `StartPreview.cmd` starts the generated preview app and builds first if the generated app is missing.
+
 1. Extract the zip to a normal user-writable folder, for example:
 
 ```text

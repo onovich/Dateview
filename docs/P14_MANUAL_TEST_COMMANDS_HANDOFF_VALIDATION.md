@@ -53,10 +53,10 @@ Generated artifacts under `artifacts\release` remain ignored and must not be com
 | `StartPreview.cmd` locates generated preview app under `artifacts\release` | PASS | R1 script review. |
 | `StartPreview.cmd` builds first if preview app is missing | PASS | R1 script review calls `BuildLatest.cmd` when `APP_EXE` is not defined. |
 | `StartPreview.cmd` starts with executable folder as working directory | PASS | R1 script review uses `start /D "%APP_DIR%"`. |
-| README/handoff docs point to root commands | PENDING | R2 documentation. |
-| `BuildLatest.cmd` smoke passes | PENDING | R2/R4 validation. |
-| `StartPreview.cmd` smoke starts app and process is cleaned up | PENDING | R2/R4 validation. |
-| Final package/hash evidence recorded | PENDING | R2/R4 validation. |
+| README/handoff docs point to root commands | PASS | R2 added concise root-command pointers to `README.md` and `docs\PREVIEW_RELEASE_HANDOFF.md`. |
+| `BuildLatest.cmd` smoke passes | PASS | R2 command smoke generated `Dateview-0.1.0-preview-win-x64.zip` under `artifacts\release`. |
+| `StartPreview.cmd` smoke starts app and process is cleaned up | PASS | R2 command smoke started `ChinaTrayCalendar.Desktop.exe`, confirmed a responding process, then stopped it with no remaining process. |
+| Final package/hash evidence recorded | PENDING | R4 final validation refreshes final artifact evidence after all P14 commits. |
 | Boundary scan has no prohibited scope | PENDING | R4 final validation. |
 
 ## Round Log
@@ -100,3 +100,67 @@ Commit / push:
 Risk / blocked:
 
 - None for R1.
+
+### R2 - Documentation And First Smoke
+
+Status: PASS
+
+Scope:
+
+- Added README and preview handoff pointers for `BuildLatest.cmd` and `StartPreview.cmd`.
+- Ran `BuildLatest.cmd` from the repository root.
+- Ran `StartPreview.cmd` from the repository root.
+- Confirmed the launched Dateview process and cleaned it up.
+- Left runtime product code unchanged.
+
+Documentation evidence:
+
+- `README.md` now lists the local manual preview commands under `Portable Release Bundle`.
+- `docs\PREVIEW_RELEASE_HANDOFF.md` now includes a project-side manual testing note before the external portable zip install flow.
+
+Command smoke evidence:
+
+- `.\BuildLatest.cmd`: passed.
+- Generated zip: `artifacts\release\Dateview-0.1.0-preview-win-x64.zip`.
+- Zip bytes: `176379`.
+- SHA256: `3ed1053d7829f82708144e86a006956afba6b548119f83f4d0c472cd44aeafae`.
+- SHA256 file: `3ed1053d7829f82708144e86a006956afba6b548119f83f4d0c472cd44aeafae  Dateview-0.1.0-preview-win-x64.zip`.
+- Release metadata `gitCommit`: `16733a2`.
+- Release metadata `generatedAtUtc`: `2026-06-22T15:51:16.2962649+00:00`.
+- Release manifest files: `13`.
+- `.\StartPreview.cmd`: passed.
+- Started executable: `artifacts\release\Dateview-0.1.0-preview-win-x64\Dateview\ChinaTrayCalendar.Desktop.exe`.
+- Started process: PID `41668`, responding, no main window title.
+- Cleanup: stopped `ChinaTrayCalendar.Desktop`; no remaining process.
+
+Debug self-check:
+
+- Manual tester workflow covered: discover root commands in docs, build latest preview, start current generated preview, and clean up the launched process.
+- Failure localization: command smoke would localize failures to package script invocation, artifact generation, artifact discovery, process launch, working directory, or cleanup.
+- Process cleanup: no Dateview process remained after smoke.
+- Generated artifacts: only ignored artifacts under `artifacts\release` were created/refreshed.
+- Admin requirement: commands ran as normal current-user commands without elevation.
+
+Architecture self-check:
+
+- R2 stayed in tooling/docs.
+- Runtime product code remained unchanged.
+- No installer/signing/public-release/online/telemetry/shell-hook scope was introduced.
+- Generated artifacts remain ignored and uncommitted.
+- No unrelated files were modified.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: tracked tree clean at R2 start.
+- `.\BuildLatest.cmd`: passed.
+- `.\StartPreview.cmd`: passed and launched the generated app.
+- Process cleanup: passed.
+- `git diff --check`: passed after R2 document updates.
+
+Commit / push:
+
+- R2 docs and smoke evidence commit: pending.
+
+Risk / blocked:
+
+- None for R2.

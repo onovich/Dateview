@@ -49,6 +49,15 @@ The configured output folder is `src\ChinaTrayCalendar.Desktop\bin\Release\net10
 
 ## Portable Release Bundle
 
+For local manual preview testing from the repository root, use the committed helper commands:<br/>**如需在仓库根目录进行本地手动预览测试，可使用已提交的辅助命令：**
+
+```cmd
+BuildLatest.cmd
+StartPreview.cmd
+```
+
+`BuildLatest.cmd` creates the latest portable preview bundle under `artifacts\release\`. `StartPreview.cmd` starts the generated preview app, building it first if needed.<br/>**`BuildLatest.cmd` 会在 `artifacts\release\` 下创建最新便携预览包；`StartPreview.cmd` 会启动生成的预览应用，如未找到生成结果会先构建。**
+
 Create the trial release bundle with the repository script:<br/>**使用仓库脚本创建试用版发布包：**
 
 ```powershell
