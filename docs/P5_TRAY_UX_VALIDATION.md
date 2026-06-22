@@ -27,6 +27,6 @@ P5 validates tray ownership, popup toggling, placement, basic context menu shape
 
 ## Current UX Notes
 
-- `Settings` and `Start with Windows` menu items are visible but disabled until the settings store and startup registration rounds wire real behavior.
+- `Settings` is enabled after P6 and opens the settings window; `Start with Windows` remains represented in the settings window rather than as a direct tray-menu toggle.
 - The app uses normal user-mode tray APIs only. It does not hook Explorer, inject into the taskbar, or require administrator permission.
 - The popup has `ShowInTaskbar=False`, `WindowStyle=None`, and tray-owned show/hide behavior, so it does not add a normal taskbar window button.
