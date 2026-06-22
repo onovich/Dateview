@@ -79,6 +79,52 @@ public sealed class MonthGridBuilderTests
     }
 
     [Fact]
+    public void BuildAppliesHolidayMarkers()
+    {
+        HolidayDay[] holidays =
+        [
+            new(new DateOnly(2026, 1, 1), HolidayDayType.DayOff, "Yuan Dan"),
+            new(new DateOnly(2026, 1, 5), HolidayDayType.FestivalOnly, "Festival"),
+        ];
+
+        MonthGrid grid = builder.Build(new CalendarMonth(2026, 1), new DateOnly(2026, 1, 10), holidays);
+
+        Assert.Equal(DayMarker.DayOff, GetDay(grid, new DateOnly(2026, 1, 1)).Marker);
+        Assert.Equal(DayMarker.FestivalOnly, GetDay(grid, new DateOnly(2026, 1, 5)).Marker);
+        Assert.Equal(DayMarker.None, GetDay(grid, new DateOnly(2026, 1, 6)).Marker);
+    }
+
+    [Fact]
+    public void BuildLetsAdjustedWorkdayOverrideWeekend()
+    {
+        HolidayDay[] holidays =
+        [
+            new(new DateOnly(2026, 1, 4), HolidayDayType.AdjustedWorkday, "Adjusted workday"),
+        ];
+
+        MonthGrid grid = builder.Build(new CalendarMonth(2026, 1), new DateOnly(2026, 1, 10), holidays);
+
+        CalendarDay adjustedWorkday = GetDay(grid, new DateOnly(2026, 1, 4));
+        Assert.Equal(DayMarker.AdjustedWorkday, adjustedWorkday.Marker);
+        Assert.False(adjustedWorkday.IsWeekend);
+    }
+
+    [Fact]
+    public void BuildRejectsDuplicateHolidayDates()
+    {
+        HolidayDay[] holidays =
+        [
+            new(new DateOnly(2026, 1, 1), HolidayDayType.DayOff, "Yuan Dan"),
+            new(new DateOnly(2026, 1, 1), HolidayDayType.FestivalOnly, "Duplicate"),
+        ];
+
+        ArgumentException exception = Assert.Throws<ArgumentException>(
+            () => builder.Build(new CalendarMonth(2026, 1), new DateOnly(2026, 1, 10), holidays));
+
+        Assert.Equal("holidays", exception.ParamName);
+    }
+
+    [Fact]
     public void BuildRejectsUnsupportedFirstDayOfWeek()
     {
         const DayOfWeek unsupportedDayOfWeek = (DayOfWeek)99;
