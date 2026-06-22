@@ -84,6 +84,15 @@ Get-Content .\Dateview-0.1.0-preview-win-x64.sha256.txt
 
 P9 does not provide an installer, auto-update, code signing, online holiday sync, or telemetry.<br/>**P9 不提供安装器、自动更新、代码签名、在线节假日同步或遥测。**
 
+## Windows Trust Notes
+
+Dateview `0.1.0-preview` is an unsigned portable preview. Windows may show an unknown-publisher, SmartScreen, or Microsoft Defender warning for an unsigned executable or a downloaded zip.<br/>**Dateview `0.1.0-preview` 是未签名的便携预览版。对于未签名 exe 或下载得到的 zip，Windows 可能显示未知发布者、SmartScreen 或 Microsoft Defender 提示。**
+
+- Use builds only from a trusted project or distributor location.<br/>**只使用来自可信项目位置或可信分发方的构建。**
+- Compare the zip SHA256 with the matching `.sha256.txt` before running it.<br/>**运行前请将 zip 的 SHA256 与配套 `.sha256.txt` 对比。**
+- Do not disable Windows Security, Microsoft Defender, or SmartScreen to run Dateview.<br/>**不要为了运行 Dateview 而关闭 Windows 安全中心、Microsoft Defender 或 SmartScreen。**
+- If the source or hash does not match what you expected, do not run the app.<br/>**如果来源或哈希与预期不一致，请不要运行该应用。**
+
 ## Settings And Data
 
 - Settings file: `%APPDATA%\ChinaTrayCalendar\settings.json`.<br/>**设置文件：`%APPDATA%\ChinaTrayCalendar\settings.json`。**

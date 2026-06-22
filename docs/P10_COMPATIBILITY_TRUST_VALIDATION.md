@@ -74,9 +74,9 @@ Compatibility matrix:
 
 ### R4 Windows Trust Prompt Documentation
 
-- [ ] Review unsigned portable app documentation.
-- [ ] Update README/TROUBLESHOOTING/RELEASE_NOTES if needed.
-- [ ] Avoid instructions that bypass Windows security features.
+- [x] Review unsigned portable app documentation.
+- [x] Update README/TROUBLESHOOTING/RELEASE_NOTES if needed.
+- [x] Avoid instructions that bypass Windows security features.
 
 ### R5 Release Trust And Signing ADR
 
@@ -287,8 +287,62 @@ Release artifact/hash:
 
 Commit / push:
 
-- Pending R3 commit.
+- `3c6d00e compat: record DPI scaling limits` pushed.
 
 Risk / blocked:
 
 - Physical non-100% DPI spot check remains pending for a safe manual desktop QA pass or alternate hardware/session.
+
+### R4 - Windows Trust Prompt Documentation
+
+Status: PASS
+
+Scope:
+
+- Reviewed README, troubleshooting, and release notes for unsigned portable distribution wording.
+- Added user-facing notes about unknown-publisher, SmartScreen, and Microsoft Defender prompts.
+- Clarified that SHA256 verifies zip integrity only and is not a code signature.
+- Explicitly told users not to disable Windows Security, Microsoft Defender, or SmartScreen to run Dateview.
+- Kept P10 within documentation and decision-material scope; no signing or installer implementation was added.
+
+Documentation updates:
+
+- `README.md`
+  - Added `Windows Trust Notes`.
+  - Advises trusted source, SHA256 comparison, keeping Windows security enabled, and not running unexpected files.
+- `docs\TROUBLESHOOTING.md`
+  - Added `Windows Security Prompts`.
+  - Treats warnings as a trust decision and points back to source/hash verification.
+- `docs\RELEASE_NOTES.md`
+  - Added unsigned preview warning expectations and trusted-source/hash guidance.
+
+Debug self-check:
+
+- Minimal user workflow: receive unsigned portable zip, verify source/hash, see possible Windows trust prompt, decide whether to run.
+- Failure localization: trust issues are documentation/distribution policy issues, not runtime calendar behavior.
+- Coverage: unknown publisher, SmartScreen, Defender, SHA256 integrity vs signature, and unsafe security-disable guidance are addressed.
+- Security posture: docs do not tell users to bypass, disable, or suppress Windows security features.
+
+Architecture self-check:
+
+- R4 changes documentation only.
+- No Desktop/Application/Infrastructure/Domain runtime behavior changed.
+- No certificate configuration, signing, installer, auto-update, online service, telemetry, shell hook, Explorer injection, HKLM write, or admin requirement added.
+- Generated artifacts remain ignored.
+
+Validation:
+
+- `git diff --check`: passed.
+- Security prompt wording scan: only negative guidance was found for disabling/bypassing security features; no bypass instructions were added.
+
+Release artifact/hash:
+
+- No new artifact generated in R4; R1 bundle remains the latest P10 script-generated baseline.
+
+Commit / push:
+
+- Pending R4 commit.
+
+Risk / blocked:
+
+- Dateview remains unsigned until a future PM/architecture signing decision is made.

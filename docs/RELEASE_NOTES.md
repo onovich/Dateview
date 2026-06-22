@@ -22,6 +22,7 @@ Dateview `0.1.0-preview` is the first trial distribution package for Windows tra
 
 - SHA256 files are integrity checks for release zips, not code signatures.<br/>**SHA256 文件只用于 zip 完整性校验，不是代码签名。**
 - Verify a bundle by comparing `Get-FileHash -Algorithm SHA256 .\Dateview-0.1.0-preview-win-x64.zip` with the matching `.sha256.txt` file. The exact validated artifact hash is recorded in `docs\P9_RELEASE_DISTRIBUTION_VALIDATION.md`.<br/>**校验发布包时，请将 `Get-FileHash -Algorithm SHA256 .\Dateview-0.1.0-preview-win-x64.zip` 的结果与配套 `.sha256.txt` 文件对比。精确的已验证产物哈希记录在 `docs\P9_RELEASE_DISTRIBUTION_VALIDATION.md`。**
+- Because this preview is unsigned, Windows may show unknown-publisher, SmartScreen, or Microsoft Defender prompts. Keep Windows security features enabled; run only builds from a trusted source whose hash matches the expected value.<br/>**由于此预览版未签名，Windows 可能显示未知发布者、SmartScreen 或 Microsoft Defender 提示。请保持 Windows 安全功能开启；只运行来自可信来源且哈希匹配预期值的构建。**
 - This preview does not include an installer, auto-update, online holiday sync, calendar-account sync, telemetry, Explorer injection, taskbar hooks, HKLM writes, or administrator requirements.<br/>**此预览版不包含安装器、自动更新、在线节假日同步、日历账户同步、遥测、Explorer 注入、任务栏钩子、HKLM 写入或管理员权限要求。**
 - Windows may place new tray icons in the hidden notification area; users may need to open the tray overflow and pin Dateview manually.<br/>**Windows 可能会把新的托盘图标放入隐藏通知区域；用户可能需要打开托盘溢出区并手动固定 Dateview。**
 - Holiday data coverage in this preview is limited to the bundled 2025 and 2026 China JSON files.<br/>**此预览版的节假日数据范围仅限内置的中国 2025 和 2026 年 JSON 文件。**

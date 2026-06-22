@@ -34,6 +34,13 @@
 - If the app was moved after Start with Windows was enabled, turn the startup toggle off and on again so the HKCU Run value points to the new executable path.<br/>**如果启用“开机启动”后移动了应用目录，请关闭再重新打开该开关，让 HKCU Run 值指向新的 exe 路径。**
 - The `.sha256.txt` file is an integrity check for the zip, not a code signature. Use it only to confirm the downloaded zip matches the expected hash.<br/>**`.sha256.txt` 是 zip 完整性校验，不是代码签名；它只用于确认下载到的 zip 与预期哈希一致。**
 
+## Windows Security Prompts
+
+- Dateview `0.1.0-preview` is unsigned, so Windows may describe the publisher as unknown or show a SmartScreen/Microsoft Defender warning for the downloaded file.<br/>**Dateview `0.1.0-preview` 未进行代码签名，因此 Windows 可能把发布者显示为未知，或对下载文件显示 SmartScreen/Microsoft Defender 提示。**
+- Treat those prompts as a trust decision: confirm the download source, compare the SHA256 hash, and keep Windows security features enabled.<br/>**请把这些提示视为信任决策：确认下载来源、对比 SHA256 哈希，并保持 Windows 安全功能开启。**
+- If the file source, hash, or warning details are unexpected, stop and do not run the executable.<br/>**如果文件来源、哈希或提示详情不符合预期，请停止操作，不要运行 exe。**
+- P10 documentation prepares the signing/installer decision, but it does not implement code signing or an installer.<br/>**P10 文档会准备签名/安装器决策材料，但不会实现代码签名或安装器。**
+
 ## Holiday Data
 
 - Holiday data is bundled under `assets\holidays\cn\{year}.json`; update it from official yearly notices only.<br/>**节假日数据随应用打包在 `assets\holidays\cn\{year}.json`；只能根据官方年度通知更新。**
