@@ -80,9 +80,9 @@ Compatibility matrix:
 
 ### R5 Release Trust And Signing ADR
 
-- [ ] Add release trust/signing ADR.
-- [ ] Compare unsigned portable, code signing, MSIX, and installer options.
-- [ ] Clearly identify decisions requiring PM/budget/certificate approval.
+- [x] Add release trust/signing ADR.
+- [x] Compare unsigned portable, code signing, MSIX, and installer options.
+- [x] Clearly identify decisions requiring PM/budget/certificate approval.
 
 ### R8 Final P10 Acceptance
 
@@ -341,8 +341,59 @@ Release artifact/hash:
 
 Commit / push:
 
-- Pending R4 commit.
+- `68bfbae compat: document unsigned trust prompts` pushed.
 
 Risk / blocked:
 
 - Dateview remains unsigned until a future PM/architecture signing decision is made.
+
+### R5 - Release Trust And Signing ADR
+
+Status: PASS
+
+Scope:
+
+- Added `docs\adr\0001-release-trust-and-signing.md`.
+- Compared unsigned portable zip, code signing, MSIX, and traditional installer options.
+- Recommended keeping unsigned portable zip for `0.1.0-preview` limited trusted distribution.
+- Recommended code-signing the portable executable/artifacts as the likely next trust step before broader public distribution.
+- Identified follow-up PM/budget/key ownership/release-process/distribution decisions.
+- Explicitly avoided implementing signing, installer packaging, certificate configuration, or auto-update.
+
+ADR summary:
+
+- Option A: Continue unsigned portable zip.
+- Option B: Code-sign portable executable and zip.
+- Option C: MSIX package.
+- Option D: Traditional installer such as WiX, Inno Setup, or NSIS.
+- Recommendation: keep Option A for this preview; consider Option B before broader public release; defer installer technology until there is a clear need and a separate implementation phase.
+
+Debug self-check:
+
+- Minimal workflow: current users receive a portable zip; future trust work may add signing before any installer decision.
+- Failure localization: release trust issues are distribution policy/release operations concerns, not calendar runtime behavior.
+- Coverage: ADR covers unsigned, signed portable, MSIX, and installer options, plus decision ownership.
+- Scope control: ADR does not select or implement a third-party installer/build package.
+
+Architecture self-check:
+
+- R5 changes documentation only.
+- No runtime code, project references, signing configuration, installer scripts, auto-update, online service, telemetry, shell hook, Explorer injection, HKLM write, or admin requirement added.
+- ADR keeps release trust decisions separate from Desktop/Application/Infrastructure/Domain behavior.
+
+Validation:
+
+- `git diff --check`: passed.
+- `git status --short --branch`: only `docs\P10_COMPATIBILITY_TRUST_VALIDATION.md` and `docs\adr\0001-release-trust-and-signing.md` changed.
+
+Release artifact/hash:
+
+- No new artifact generated in R5; R1 bundle remains the latest P10 script-generated baseline.
+
+Commit / push:
+
+- Pending R5 commit.
+
+Risk / blocked:
+
+- Code signing and installer decisions remain pending for PM/architecture/budget approval.
