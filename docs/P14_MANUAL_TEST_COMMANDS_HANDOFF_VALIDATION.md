@@ -56,8 +56,8 @@ Generated artifacts under `artifacts\release` remain ignored and must not be com
 | README/handoff docs point to root commands | PASS | R2 added concise root-command pointers to `README.md` and `docs\PREVIEW_RELEASE_HANDOFF.md`. |
 | `BuildLatest.cmd` smoke passes | PASS | R2 command smoke generated `Dateview-0.1.0-preview-win-x64.zip` under `artifacts\release`. |
 | `StartPreview.cmd` smoke starts app and process is cleaned up | PASS | R2 command smoke started `ChinaTrayCalendar.Desktop.exe`, confirmed a responding process, then stopped it with no remaining process. |
-| Final package/hash evidence recorded | PENDING | R4 final validation refreshes final artifact evidence after all P14 commits. |
-| Boundary scan has no prohibited scope | PENDING | R4 final validation. |
+| Final package/hash evidence recorded | PASS | R4 final `BuildLatest.cmd` generated zip bytes `176355`, SHA256 `ee7ec7fadea164574e9337fe40be29c1401d09c9554b5e9443eca6a34985facf`. |
+| Boundary scan has no prohibited scope | PASS | R4 scoped scan over `src`, `tests`, `scripts`, `BuildLatest.cmd`, and `StartPreview.cmd` found no prohibited implementation-scope matches. |
 
 ## Round Log
 
@@ -164,3 +164,82 @@ Commit / push:
 Risk / blocked:
 
 - None for R2.
+
+### R3 - Buffer Repair
+
+Status: NOT USED BY DESIGN
+
+Reason:
+
+- `BuildLatest.cmd` and `StartPreview.cmd` passed R2 command smoke without pathing, quoting, artifact discovery, launch, or cleanup failures.
+- No runtime product code changed in P14.
+- No small docs repair beyond the planned R2 pointer was needed.
+
+### R4 - Final Validation
+
+Status: PASS
+
+Scope:
+
+- Re-ran final validation gates.
+- Re-ran `Package.cmd`.
+- Re-ran `BuildLatest.cmd`.
+- Re-ran `StartPreview.cmd`, confirmed the launched process, and cleaned it up.
+- Re-ran diff and boundary scans.
+- Left generated artifacts ignored and uncommitted.
+
+Final validation:
+
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+- Final test counts: Domain `33`, Application `21`, Infrastructure `37`, Desktop `46`; all passed.
+- `dotnet format Dateview.slnx --verify-no-changes`: passed with the existing workspace-load warning only.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed.
+- `.\BuildLatest.cmd`: passed.
+- `.\StartPreview.cmd`: passed.
+- `git diff --check`: passed.
+- Broad docs-inclusive boundary scan returned expected historical documentation references to prohibited scope.
+- Scoped implementation boundary scan over `src`, `tests`, `scripts`, `BuildLatest.cmd`, and `StartPreview.cmd`: no matches.
+- Final status before this report update: `main...origin/main` clean.
+
+Final command smoke evidence:
+
+- `StartPreview.cmd` started `artifacts\release\Dateview-0.1.0-preview-win-x64\Dateview\ChinaTrayCalendar.Desktop.exe`.
+- Started process: PID `31912`, responding, no main window title.
+- Cleanup: stopped `ChinaTrayCalendar.Desktop`; no remaining process.
+- No startup registry or user settings change was made by either root command.
+
+Final package / artifact evidence:
+
+- Zip: `artifacts\release\Dateview-0.1.0-preview-win-x64.zip`.
+- Zip bytes: `176355`.
+- SHA256: `ee7ec7fadea164574e9337fe40be29c1401d09c9554b5e9443eca6a34985facf`.
+- SHA256 file: `ee7ec7fadea164574e9337fe40be29c1401d09c9554b5e9443eca6a34985facf  Dateview-0.1.0-preview-win-x64.zip`.
+- Release metadata `gitCommit`: `2a227d6`.
+- Release metadata `generatedAtUtc`: `2026-06-22T15:54:59.0522232+00:00`.
+- Release manifest files: `13`.
+- Holiday JSON parse, using explicit UTF-8: `2025.json` schema `1` / `CN` / `33` days; `2026.json` schema `1` / `CN` / `39` days.
+- Packaged executable associated icon: `32x32`.
+
+Debug self-check:
+
+- Manual tester workflow covered: final root-command discovery, build latest preview, start generated preview, verify process launch, and clean up.
+- Failure localization: final evidence covers root command pathing, package script invocation, artifact discovery, process launch, working directory, and cleanup.
+- Process cleanup: no Dateview process remained after final smoke.
+- Generated artifacts: only ignored artifacts under `artifacts\release` were created/refreshed.
+- Admin requirement: commands ran as normal current-user commands without elevation.
+
+Architecture self-check:
+
+- P14 stayed in tooling/docs.
+- Runtime product code remained unchanged.
+- No installer/signing/public-release/upload/online/telemetry/shell-hook scope was introduced.
+- Generated artifacts remain ignored and uncommitted.
+- No unrelated files were modified.
+
+Commit / push:
+
+- Final P14 validation commit: pending.
+
+Residual risks:
+
+- None specific to P14 command handoff. Generated release hashes change whenever `BuildLatest.cmd` regenerates metadata for a new git commit/time, so testers should always use the matching `.sha256.txt` from the same generation.
