@@ -77,9 +77,9 @@ artifacts\release\
 
 - [x] Verify clean-user first run and settings path behavior.
 - [x] Verify HKCU startup enable/disable and restore original state.
-- [ ] Verify portable bundle unzip/run from a temporary folder.
-- [ ] Verify second instance exits successfully from the portable folder.
-- [ ] Verify holiday data loads from the portable relative `assets` directory.
+- [x] Verify portable bundle unzip/run from a temporary folder.
+- [x] Verify second instance exits successfully from the portable folder.
+- [x] Verify holiday data loads from the portable relative `assets` directory.
 
 ### Final Distribution Acceptance
 
@@ -400,8 +400,85 @@ Release artifact/hash:
 
 Commit / push:
 
-- Pending R5 commit.
+- `4133af5 docs: record startup cleanup smoke` pushed.
 
 Risk / blocked:
 
 - None for R5.
+
+### R6 - Portable Bundle Unzip And Run Smoke
+
+Status: PASS
+
+Scope:
+
+- Regenerated the portable bundle from current `main`.
+- Verified the zip SHA256 matches the generated `.sha256.txt` file.
+- Extracted the zip into a temporary user profile path.
+- Launched `ChinaTrayCalendar.Desktop.exe` from the extracted temporary `Dateview` folder.
+- Verified a second launch from the same portable folder exits successfully with code `0`.
+- Verified bundled holiday data is present and parseable from the relative `assets\holidays\cn` directory.
+- Verified the extracted `release-manifest.json` contains the executable and holiday data entries.
+- Removed the temporary extraction directory and confirmed no Dateview process remained.
+
+Debug self-check:
+
+- Fresh unzip path: the app started from `%TEMP%`, not from the repository publish folder.
+- Failure localization: R6 checks zip/hash, extraction, required files, relative holiday data, manifest contents, primary launch, second-instance exit, and cleanup separately.
+- Missing holiday data coverage: both `2025.json` and `2026.json` were parsed from the extracted relative `assets` directory.
+- Second instance coverage: second portable launch exited within 10 seconds with exit code `0`.
+
+Architecture self-check:
+
+- R6 changes validation documentation only.
+- Portable execution uses the existing single-instance guard and app-relative holiday data lookup.
+- No installer, auto-update, online service, telemetry, shell hook, Explorer injection, HKLM write, admin requirement, or business feature expansion added.
+- External tray popup crash regression remains covered by `PopupAnimationServiceTests`: content `UIElement` receives `RenderTransform`, while the top-level WPF `Window` does not.
+
+Validation:
+
+- Bundle script:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\package-release.ps1
+```
+
+- Bundle metadata:
+  - Bundle name: `Dateview-0.1.0-preview-win-x64`
+  - Git commit in release metadata: `4133af5`
+  - Zip: `D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64.zip`
+  - Zip bytes: `172443`
+  - Zip SHA256: `c57ffcfba9bfac094269e7f6d58629e8255f7409436dee3ce007f5368b892bdd`
+  - Manifest file count: `13`
+- Temporary extraction path:
+
+```text
+C:\Users\Administrator\AppData\Local\Temp\Dateview-P9R6-d580853f8d784680902979455f877474
+```
+
+- Extracted exe:
+
+```text
+C:\Users\Administrator\AppData\Local\Temp\Dateview-P9R6-d580853f8d784680902979455f877474\Dateview\ChinaTrayCalendar.Desktop.exe
+```
+
+- Holiday parse evidence:
+  - `2025.json`: `33` days.
+  - `2026.json`: `39` days.
+- Primary process id: `32972`.
+- Second instance exit code: `0`.
+- Temporary extraction directory removed: `true`.
+- Running Dateview process count after cleanup: `0`.
+
+Release artifact/hash:
+
+- `artifacts\release\Dateview-0.1.0-preview-win-x64.zip`
+- `c57ffcfba9bfac094269e7f6d58629e8255f7409436dee3ce007f5368b892bdd`
+
+Commit / push:
+
+- Pending R6 commit.
+
+Risk / blocked:
+
+- None for R6.
