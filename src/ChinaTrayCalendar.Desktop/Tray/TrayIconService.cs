@@ -7,6 +7,7 @@ internal sealed class TrayIconService : IDisposable
 {
     private readonly ITrayIconFactory trayIconFactory;
     private readonly Func<Point> getCursorPosition;
+    private ToolStripMenuItem? startWithWindowsItem;
     private ITrayIcon? trayIcon;
 
     public TrayIconService(ITrayIconFactory trayIconFactory, Func<Point>? getCursorPosition = null)
@@ -20,6 +21,8 @@ internal sealed class TrayIconService : IDisposable
     public event EventHandler? ExitRequested;
 
     public event EventHandler? SettingsRequested;
+
+    public event EventHandler? StartWithWindowsToggleRequested;
 
     public event EventHandler? TodayRequested;
 
@@ -43,7 +46,19 @@ internal sealed class TrayIconService : IDisposable
         trayIcon.ContextMenuStrip?.Dispose();
         trayIcon.ContextMenuStrip = null;
         trayIcon.Dispose();
+        startWithWindowsItem = null;
         trayIcon = null;
+    }
+
+    public void SetStartWithWindowsState(bool isChecked, bool isEnabled = true)
+    {
+        if (startWithWindowsItem is null)
+        {
+            return;
+        }
+
+        startWithWindowsItem.Checked = isChecked;
+        startWithWindowsItem.Enabled = isEnabled;
     }
 
     private ITrayIcon CreateTrayIcon()
@@ -65,10 +80,8 @@ internal sealed class TrayIconService : IDisposable
 
         ToolStripMenuItem settingsItem = new(DesktopStrings.TrayMenuSettings);
         settingsItem.Click += (_, _) => SettingsRequested?.Invoke(this, EventArgs.Empty);
-        ToolStripMenuItem startWithWindowsItem = new(DesktopStrings.TrayMenuStartWithWindows)
-        {
-            Enabled = false,
-        };
+        startWithWindowsItem = new ToolStripMenuItem(DesktopStrings.TrayMenuStartWithWindows);
+        startWithWindowsItem.Click += (_, _) => StartWithWindowsToggleRequested?.Invoke(this, EventArgs.Empty);
         ToolStripMenuItem exitItem = new(DesktopStrings.TrayMenuExit);
         exitItem.Click += (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty);
 

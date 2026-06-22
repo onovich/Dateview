@@ -32,14 +32,14 @@ D:\ToolProjects\Dateview\src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windo
 
 ### Tray And Single Instance
 
-- [ ] Start the published executable as a normal user.
-- [ ] Confirm the Dateview tray icon is visible in the notification area or Windows tray overflow.
-- [ ] Confirm a second launch exits successfully without opening another long-running instance.
-- [ ] Right-click the tray icon and confirm the context menu contains Today, Settings, Start with Windows, and Exit.
+- [x] Start the published executable as a normal user.
+- [x] Confirm the Dateview tray icon is visible in the notification area or Windows tray overflow.
+- [x] Confirm a second launch exits successfully without opening another long-running instance.
+- [x] Right-click the tray icon and confirm the context menu contains Today, Settings, Start with Windows, and Exit.
 - [ ] Click Today from the context menu and confirm the calendar returns to the current month when the popup is visible.
 - [ ] Click Settings from the context menu and confirm the settings window opens.
 - [ ] Toggle Start with Windows from the context menu and restore the original state afterward.
-- [ ] Click Exit and confirm the app process exits and the tray icon clears.
+- [x] Click Exit and confirm the app process exits and the tray icon clears.
 
 ### Popup Interaction
 
@@ -109,3 +109,62 @@ Architecture self-check:
 - No Domain, Application, Infrastructure, or Desktop source boundaries changed.
 - No new package, startup, shell hook, admin, or online dependency was introduced.
 - P8 manual QA scope remains focused on Release Candidate hardening rather than new product features.
+
+### R2 - Tray Entry, Context Menu, Exit, And Single Instance
+
+Status: PASS
+
+Defect found and fixed:
+
+- The tray context menu contained `开机启动`, but it was disabled.
+- Fixed `TrayIconService` so `开机启动` is enabled, checkable by app state, and raises `StartWithWindowsToggleRequested`.
+- Wired the Desktop composition root to the existing `ToggleStartupUseCase` and `IAutoStartService`; Registry access remains in Infrastructure.
+- Added Desktop tests for the enabled menu item, toggle request event, and checked/enabled state refresh.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R2 start.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed after the fix.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed after the fix.
+- Desktop test count increased from `33` to `35`.
+
+Manual and smoke evidence:
+
+- Started the published executable as a normal user.
+- Confirmed the Dateview tray entry appears in the Windows tray overflow through UI Automation:
+  - Name: `Dateview`
+  - Class: `SystemTray.NormalButton`
+  - Rectangle: `2006,1295,40,40`
+- Right-clicked the Dateview tray entry and confirmed all Dateview menu items were visible and enabled:
+  - `今天`, enabled, Dateview process.
+  - `设置`, enabled, Dateview process.
+  - `开机启动`, enabled, Dateview process.
+  - `退出`, enabled, Dateview process.
+- Clicked `退出` from the real tray context menu:
+  - Started process: `2224`
+  - Exit code: `0`
+  - No remaining `ChinaTrayCalendar.Desktop` process after exit.
+- Re-ran single-instance smoke on the republished output:
+  - First instance stayed running.
+  - Second instance exited with code `0`.
+  - Smoke-started first instance was stopped after verification.
+- Temporary local screenshots were used for coordinate confirmation under `artifacts\p8-qa\` and were not intended as committed release artifacts.
+
+Deferred to later P8 rounds:
+
+- `今天` command behavior is best verified with the popup open in R3.
+- `设置` window behavior and `开机启动` registry state are verified in R5, where registry state capture and restore are required.
+
+Debug self-check:
+
+- Minimal workflow covered in R2: start published app, find tray entry, open real context menu, verify menu shape, exit from menu, verify single-instance behavior.
+- Failure layer checked: Desktop tray service, Desktop composition wiring, existing Application startup use case, published executable interaction with Windows tray overflow.
+- Success/failure cases covered: enabled menu items, disabled-menu regression test, exit success, second-instance success.
+- Registry/settings cleanup: R2 did not click `开机启动`; no startup registry state was changed.
+
+Architecture self-check:
+
+- UI and tray behavior stayed in Desktop.
+- Startup state mutation uses existing Application `ToggleStartupUseCase` and Infrastructure `WindowsAutoStartService`.
+- No Domain or Application business logic was duplicated in the UI.
+- No shell hook, Explorer injection, admin requirement, online dependency, or third-party package was introduced.

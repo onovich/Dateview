@@ -127,7 +127,7 @@ public sealed class TrayIconServiceTests
         Assert.Equal(5, menu.Items.Count);
         AssertMenuItem(menu, index: 0, DesktopStrings.TrayMenuToday, enabled: true);
         AssertMenuItem(menu, index: 1, DesktopStrings.TrayMenuSettings, enabled: true);
-        AssertMenuItem(menu, index: 2, DesktopStrings.TrayMenuStartWithWindows, enabled: false);
+        AssertMenuItem(menu, index: 2, DesktopStrings.TrayMenuStartWithWindows, enabled: true);
         Assert.IsType<ToolStripSeparator>(menu.Items[3]);
         AssertMenuItem(menu, index: 4, DesktopStrings.TrayMenuExit, enabled: true);
     }
@@ -175,6 +175,35 @@ public sealed class TrayIconServiceTests
         exitItem.PerformClick();
 
         Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
+    public void StartWithWindowsMenuClickRaisesToggleRequested()
+    {
+        FakeTrayIconFactory factory = new();
+        using TrayIconService service = new(factory);
+        int requestCount = 0;
+        service.StartWithWindowsToggleRequested += (_, _) => requestCount++;
+        service.Show();
+
+        ToolStripMenuItem startWithWindowsItem = GetMenuItem(factory, index: 2);
+        startWithWindowsItem.PerformClick();
+
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
+    public void SetStartWithWindowsStateUpdatesMenuItem()
+    {
+        FakeTrayIconFactory factory = new();
+        using TrayIconService service = new(factory);
+        service.Show();
+
+        service.SetStartWithWindowsState(isChecked: true, isEnabled: false);
+
+        ToolStripMenuItem startWithWindowsItem = GetMenuItem(factory, index: 2);
+        Assert.True(startWithWindowsItem.Checked);
+        Assert.False(startWithWindowsItem.Enabled);
     }
 
     private static void AssertMenuItem(ContextMenuStrip menu, int index, string expectedText, bool enabled)

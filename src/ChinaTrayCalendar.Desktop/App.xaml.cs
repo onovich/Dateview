@@ -46,11 +46,13 @@ public partial class App : System.Windows.Application
         trayIconService.ExitRequested += OnTrayExitRequested;
         trayIconService.PrimaryClick += OnTrayIconPrimaryClick;
         trayIconService.SettingsRequested += OnTraySettingsRequested;
+        trayIconService.StartWithWindowsToggleRequested += OnTrayStartWithWindowsToggleRequested;
         trayIconService.TodayRequested += OnTrayTodayRequested;
         trayIconService.Show();
 
         settingsStore = JsonSettingsStore.CreateDefault();
         autoStartService = new WindowsAutoStartService(GetExecutablePath());
+        RefreshTrayStartWithWindowsState();
         AppSettings settings = await LoadSettingsOrDefaultAsync(settingsStore);
 
         popupWindow = new CalendarPopupWindow();
@@ -69,6 +71,7 @@ public partial class App : System.Windows.Application
             trayIconService.ExitRequested -= OnTrayExitRequested;
             trayIconService.PrimaryClick -= OnTrayIconPrimaryClick;
             trayIconService.SettingsRequested -= OnTraySettingsRequested;
+            trayIconService.StartWithWindowsToggleRequested -= OnTrayStartWithWindowsToggleRequested;
             trayIconService.TodayRequested -= OnTrayTodayRequested;
             trayIconService.Dispose();
         }
@@ -132,12 +135,39 @@ public partial class App : System.Windows.Application
         }
     }
 
+    private void OnTrayStartWithWindowsToggleRequested(object? sender, EventArgs e)
+    {
+        if (autoStartService is null || trayIconService is null)
+        {
+            return;
+        }
+
+        try
+        {
+            ToggleStartupUseCase toggleStartupUseCase = new(autoStartService);
+            bool requestedState = !autoStartService.IsEnabled();
+            bool observedState = toggleStartupUseCase.Execute(requestedState);
+            trayIconService.SetStartWithWindowsState(observedState);
+        }
+        catch (AutoStartRegistrationException)
+        {
+            trayIconService.SetStartWithWindowsState(isChecked: false, isEnabled: false);
+            System.Windows.MessageBox.Show(
+                "开机启动设置失败",
+                DesktopStrings.AppName,
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
+    }
+
     private async void OnSettingsSaved(object? sender, AppSettings settings)
     {
         if (calendarViewModel is not null)
         {
             await calendarViewModel.ApplyFirstDayOfWeekAsync(settings.FirstDayOfWeek);
         }
+
+        trayIconService?.SetStartWithWindowsState(settings.StartWithWindows);
     }
 
     private void TogglePopup(DrawingPoint clickPoint)
@@ -182,6 +212,23 @@ public partial class App : System.Windows.Application
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
             return AppSettings.CreateDefault();
+        }
+    }
+
+    private void RefreshTrayStartWithWindowsState()
+    {
+        if (autoStartService is null || trayIconService is null)
+        {
+            return;
+        }
+
+        try
+        {
+            trayIconService.SetStartWithWindowsState(autoStartService.IsEnabled());
+        }
+        catch (AutoStartRegistrationException)
+        {
+            trayIconService.SetStartWithWindowsState(isChecked: false, isEnabled: false);
         }
     }
 
