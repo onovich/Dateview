@@ -364,7 +364,7 @@ Architecture self-check:
 
 Commit / push:
 
-- Final validation report commit: pending.
+- Final validation report commit: `a8ff293`, pushed to `origin/main`.
 
 Residual risks:
 
