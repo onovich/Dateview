@@ -36,7 +36,7 @@ D:\ToolProjects\Dateview\src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windo
 - [x] Confirm the Dateview tray icon is visible in the notification area or Windows tray overflow.
 - [x] Confirm a second launch exits successfully without opening another long-running instance.
 - [x] Right-click the tray icon and confirm the context menu contains Today, Settings, Start with Windows, and Exit.
-- [ ] Click Today from the context menu and confirm the calendar returns to the current month when the popup is visible.
+- [x] Click Today from the context menu and confirm the calendar returns to the current month when the popup is visible.
 - [x] Click Settings from the context menu and confirm the settings window opens.
 - [x] Toggle Start with Windows from the context menu and restore the original state afterward.
 - [x] Click Exit and confirm the app process exits and the tray icon clears.
@@ -48,7 +48,7 @@ D:\ToolProjects\Dateview\src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windo
 - [x] Press Escape while the popup is open and confirm it hides.
 - [x] Click outside the popup and confirm it hides.
 - [x] Move focus away from the popup and confirm it hides when the pointer is outside the popup.
-- [ ] Confirm the popup does not appear in Alt+Tab.
+- [x] Confirm the popup does not appear in Alt+Tab.
 - [x] Confirm the popup does not create a normal taskbar button.
 - [x] Use Previous Month, Next Month, and Today controls and confirm the displayed month changes correctly.
 
@@ -58,7 +58,7 @@ D:\ToolProjects\Dateview\src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windo
 - [x] Confirm the popup stays within the current monitor working area.
 - [x] Confirm the popup appears on the monitor where the tray interaction occurred, when a multi-monitor setup is available.
 - [x] Confirm placement remains correct on available display scale settings, or record the limitation if the environment cannot change DPI.
-- [ ] Confirm open and close animations feel like a short taskbar-adjacent panel transition.
+- [x] Confirm open and close animations feel like a short taskbar-adjacent panel transition.
 
 ### Settings, Startup, And Offline Data
 
@@ -75,8 +75,8 @@ D:\ToolProjects\Dateview\src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windo
 - [x] Confirm `README.md` and `docs/TROUBLESHOOTING.md` match the final behavior.
 - [x] Run `Validate.cmd`.
 - [x] Run `Package.cmd`.
-- [ ] Run a fresh published-output smoke test.
-- [ ] Record final residual risk and Release Candidate status.
+- [x] Run a fresh published-output smoke test.
+- [x] Record final residual risk and Release Candidate status.
 
 ## Round Log
 
@@ -358,3 +358,107 @@ Architecture self-check:
 - Startup mutation still flows through Application `ToggleStartupUseCase` and Infrastructure `WindowsAutoStartService`.
 - No Domain business logic changed.
 - No shell hook, Explorer injection, admin requirement, online dependency, or third-party package was introduced.
+
+### R6 - Buffer Fix For Tray Today Visibility
+
+Status: PASS
+
+Defect found and fixed:
+
+- In final smoke, selecting right-click menu `今天` while the popup was visible first caused the popup to hide through normal `Deactivated` handling.
+- The existing `OnTrayTodayRequested` only updated the `CalendarViewModel`; because the popup had already hidden, users could not see the return-to-today result from the tray menu.
+- This is MVP-required because the tray context menu explicitly includes `Today`, and the checklist requires it to return the visible calendar to the current month.
+- Fixed `App.OnTrayTodayRequested` so it still executes the existing `TodayCommand`, then shows the popup again from the current cursor position when it is hidden. The existing `TogglePopup` path now delegates to a shared Desktop-only `ShowPopup` helper.
+
+Validation:
+
+- `dotnet test tests\ChinaTrayCalendar.Desktop.Tests\ChinaTrayCalendar.Desktop.Tests.csproj --configuration Release`: passed, `38` Desktop tests.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed after formatting.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed after the fix.
+- Published Today-menu regression smoke:
+  - Started from `2026年6月`.
+  - Clicked popup `›` and reached `2026年7月`.
+  - Selected tray context-menu `今天`.
+  - Popup was visible again and showed `2026年6月`.
+  - Popup extended style remained `0x80000`.
+  - `PopupHasAppWindow = false`.
+
+Debug self-check:
+
+- Minimal workflow covered in R6: reproduce visible popup -> next month -> tray Today hidden-result problem, fix it, and verify the published executable returns to the current month visibly.
+- Failure layer checked: Desktop tray menu event handling and popup show/hide lifecycle.
+- Success/failure cases covered: no visible result before fix, visible current-month popup after fix, no taskbar app-window regression.
+- Registry/settings cleanup: R6 did not change settings or startup registry state.
+
+Architecture self-check:
+
+- The fix stayed in Desktop orchestration code.
+- Today business behavior still uses `CalendarViewModel.TodayCommand`.
+- No Domain/Application/Infrastructure behavior changed.
+- No shell hook, Explorer injection, admin requirement, online dependency, or third-party package was introduced.
+
+### R7 - Buffer Documentation Round
+
+Status: NOT CONSUMED
+
+- No additional MVP-required defect remained after the R6 Today-menu fix.
+- No extra code or documentation-only buffer commit was needed before R8 final validation.
+
+### R8 - Release Candidate Final Validation
+
+Status: PASS - Release Candidate accepted for the current MVP scope.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R8 start.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed.
+
+Fresh published-output smoke:
+
+- Startup and single instance:
+  - First published instance stayed running.
+  - Second published instance exited with code `0`.
+  - Tray rectangle: `2154,1392,32,48`.
+- Tray context menu:
+  - `今天`, `设置`, `开机启动`, and `退出` were visible and enabled.
+- Popup and Today menu:
+  - Left-click opened the popup at `1883,972,360,420`.
+  - Initial title was `2026年6月`.
+  - Popup `›` changed the title to `2026年7月`.
+  - Tray context-menu `今天` made the popup visible again and returned title to `2026年6月`.
+  - Popup extended style was `0x80000`; `WS_EX_APPWINDOW` was not present.
+- Settings and startup:
+  - Tray context-menu `设置` opened the Settings window without crashing.
+  - Settings controls present: `每周开始于`, `主题`, `开机自动启动`, `取消`, `保存`.
+  - Tray context-menu `开机启动` enabled HKCU Run value with the published exe path.
+  - Tray context-menu `开机启动` disabled HKCU Run value again.
+  - HKLM Run locations remained untouched.
+- Cleanup after final smoke:
+  - HKCU Run value restored to absent.
+  - `%APPDATA%\ChinaTrayCalendar\settings.json` restored to absent.
+  - No `ChinaTrayCalendar.Desktop` process left running.
+
+Residual risk:
+
+- Multi-monitor behavior could not be physically verified because this machine exposes only one display.
+- Non-100% DPI behavior could not be safely changed during this run; R4 recorded 96 DPI evidence and placement tests cover taskbar-edge geometry.
+- Alt+Tab exclusion was verified through shell/window evidence (`ShowInTaskbar=False` behavior, no normal taskbar button, no `WS_EX_APPWINDOW`) rather than by visually cycling the live Alt+Tab switcher.
+
+Final report:
+
+```text
+Phase: P8 Desktop UX QA & Release Candidate Hardening
+预估轮数: 8
+实际轮数: 7 execution rounds (R1-R6 plus R8; R7 buffer not consumed)
+完成内容: release-package validation, real tray/menu/popup/settings/startup smoke, placement QA, holiday data QA, and fixes for tray popup opening, Window transform animation, settings binding crash, placement gap, startup menu toggle, and tray Today visibility.
+未完成内容: physical multi-monitor and non-100% DPI manual checks were not possible in this environment.
+手动 QA 环境: WIN-ONOVICH, Windows 11 专业工作站版 10.0.26200, normal current-user desktop session, .NET SDK 10.0.102.
+验证: Status clean at R8 start, Validate.cmd passed, Package.cmd passed, published exe fresh smoke passed.
+发布产物: src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windows\win-x64\publish\ChinaTrayCalendar.Desktop.exe
+已推送 commit: R1 0b43d24, R2 1dc774d, R3 e3f4ca9, R4 706ba36, R5 f33595a, R6/R8 final is the commit containing this R8 section.
+消耗 buffer: R6 consumed for tray Today visibility fix; R7 not consumed.
+架构偏差: none.
+遗留风险: physical multi-monitor/DPI variant spot checks should be repeated on hardware that supports them.
+建议下一 phase: P9 can focus on installer/startup polish or optional localization/theme polish after MVP acceptance.
+```

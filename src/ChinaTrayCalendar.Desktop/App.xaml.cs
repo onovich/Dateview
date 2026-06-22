@@ -12,6 +12,7 @@ using ChinaTrayCalendar.Infrastructure.Settings;
 using ChinaTrayCalendar.Infrastructure.Startup;
 using ChinaTrayCalendar.Infrastructure.Time;
 using DrawingPoint = System.Drawing.Point;
+using FormsCursor = System.Windows.Forms.Cursor;
 
 namespace ChinaTrayCalendar.Desktop;
 
@@ -133,6 +134,19 @@ public partial class App : System.Windows.Application
         {
             await calendarViewModel.TodayCommand.ExecuteAsync();
         }
+
+        if (popupWindow is null)
+        {
+            return;
+        }
+
+        if (!popupWindow.IsVisible)
+        {
+            ShowPopup(FormsCursor.Position);
+            return;
+        }
+
+        popupWindow.Activate();
     }
 
     private void OnTrayStartWithWindowsToggleRequested(object? sender, EventArgs e)
@@ -180,6 +194,16 @@ public partial class App : System.Windows.Application
         if (popupWindow.IsVisible)
         {
             HidePopup();
+            return;
+        }
+
+        ShowPopup(clickPoint);
+    }
+
+    private void ShowPopup(DrawingPoint clickPoint)
+    {
+        if (popupWindow is null)
+        {
             return;
         }
 
