@@ -8,6 +8,30 @@ namespace ChinaTrayCalendar.Desktop.Tests;
 public sealed class CalendarViewModelTests
 {
     [Fact]
+    public void CalendarPopupWindowCanBeConstructed()
+    {
+        Exception? exception = null;
+        Thread thread = new(() =>
+        {
+            try
+            {
+                CalendarPopupWindow window = new();
+                window.Close();
+            }
+            catch (Exception caughtException)
+            {
+                exception = caughtException;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+
+        thread.Start();
+        thread.Join();
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
     public async Task LoadAsyncPopulatesCurrentMonth()
     {
         FakeClock clock = new(new DateOnly(2026, 6, 22));
