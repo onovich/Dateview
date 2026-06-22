@@ -83,9 +83,9 @@ D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64\Datevi
 
 ### R3 Feedback Intake And Triage
 
-- [ ] Create `docs/PREVIEW_FEEDBACK_GUIDE.md`.
-- [ ] Define issue categories, severities, required reproduction fields, and environment fields.
-- [ ] Keep multi-monitor and non-100% DPI gaps explicit.
+- [x] Create `docs/PREVIEW_FEEDBACK_GUIDE.md`.
+- [x] Define issue categories, severities, required reproduction fields, and environment fields.
+- [x] Keep multi-monitor and non-100% DPI gaps explicit.
 
 ### R4 Existing Docs Linkage
 
@@ -221,3 +221,48 @@ Commit / push:
 Risk / blocked:
 
 - None for R2.
+
+### R3 - Feedback Intake And Triage
+
+Status: PASS
+
+Scope:
+
+- Added `docs/PREVIEW_FEEDBACK_GUIDE.md`.
+- Defined triage outcomes: `fix-now`, `document`, `defer`, and `needs hardware reproduction`.
+- Defined severity levels `S0` through `S3`.
+- Defined issue categories covering package/hash, startup/single-instance, tray/menu, popup placement, DPI/display, calendar/holiday data, settings/startup, trust warnings, crash/hang/performance, and documentation confusion.
+- Added a required report template with version, zip hash, source, install path, Windows/display/taskbar/startup/settings fields, reproduction steps, expected/actual behavior, frequency, workaround, screenshots, and crash text.
+
+Debug self-check:
+
+- Smallest preview workflow covered: a tester can report a failed verify/extract/run/tray/popup/settings/trust workflow with enough fields for the next phase to reproduce or defer intentionally.
+- Failure localization: the category and required-field structure separates artifact generation/hash, unzip/run, startup cleanup, Windows trust docs, feedback intake, and triage process.
+- Hardware coverage: the guide says current live coverage is Windows 11, one display, bottom taskbar, and `100%` scale / `96 DPI`; it asks for real multi-monitor/non-100% DPI evidence without claiming it.
+- State cleanup: startup-related fields ask whether `Start with Windows` was enabled and whether the app folder moved after enabling it.
+- Generated artifacts: R3 did not generate or stage release artifacts.
+
+Architecture self-check:
+
+- R3 changes documentation only.
+- No runtime code, installer, signing, certificate, auto-update, telemetry, online API, Explorer/taskbar injection, Shell hook, HKLM write, or admin requirement was added.
+- The feedback guide preserves no-telemetry posture and asks testers to share only minimum local reproduction information.
+- Out-of-scope requests are captured for future planning rather than implemented in P11.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R3 start.
+- `git diff --check`: passed.
+- Feedback guide field review: includes Windows version/build, display count, scale percentages, taskbar edge/autohide, extracted path, zip hash, Dateview version, startup enabled, and settings state.
+
+Release artifact/hash:
+
+- No new artifact generated in R3; R1 remains the latest P11 script-generated candidate evidence.
+
+Commit / push:
+
+- This R3 section is committed by the R3 P11 feedback guide commit.
+
+Risk / blocked:
+
+- None for R3.
