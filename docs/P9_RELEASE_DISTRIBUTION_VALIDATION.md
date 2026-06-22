@@ -54,10 +54,10 @@ artifacts\release\
 
 ### Bundle Tooling
 
-- [ ] Add a repeatable release bundle command/script.
-- [ ] Ensure the script runs from the repository root without developer-machine absolute paths.
-- [ ] Output generated files under ignored local artifact folders.
-- [ ] Confirm generated bundle structure is stable.
+- [x] Add a repeatable release bundle command/script.
+- [x] Ensure the script runs from the repository root without developer-machine absolute paths.
+- [x] Output generated files under ignored local artifact folders.
+- [x] Confirm generated bundle structure is stable.
 
 ### Version, Manifest, And Hash
 
@@ -151,3 +151,77 @@ Commit / push:
 Risk / blocked:
 
 - None for R1.
+
+### R2 - Repeatable Release Bundle Command
+
+Status: PASS
+
+Scope:
+
+- Added `scripts\package-release.ps1`.
+- Added `artifacts/` to `.gitignore`.
+- Generated a portable folder plus zip under `artifacts\release`.
+
+Script behavior:
+
+- Runs from the repository root or any script invocation location by resolving paths relative to the script directory.
+- Uses the existing `src\ChinaTrayCalendar.Desktop\Properties\PublishProfiles\win-x64-folder.pubxml` publish profile through `dotnet publish`.
+- Copies the publish output into:
+
+```text
+artifacts\release\Dateview-0.1.0-preview-win-x64\Dateview\
+```
+
+- Creates:
+
+```text
+artifacts\release\Dateview-0.1.0-preview-win-x64.zip
+```
+
+- Refuses release cleanup paths outside the repository root.
+- Verifies required executable/runtime/holiday files before zip creation.
+
+Debug self-check:
+
+- Fresh publish path: the bundle script starts from the checked-in project and publish profile, not from an existing local artifact.
+- Failure localization: script failures are localized to publish, copy/staging, required-file checks, or zip creation.
+- Coverage: first run exposed an empty copy bug caused by `Copy-Item -LiteralPath ...\*`; the script now enumerates source children before copying.
+- Missing artifact coverage: the script checks exe, dll, deps, runtimeconfig, and 2025/2026 holiday data.
+
+Architecture self-check:
+
+- Release tooling stays under `scripts/` and local ignored `artifacts/`.
+- No Domain/Application/Infrastructure/Desktop runtime behavior changed.
+- No installer, auto-update, online service, telemetry, shell hook, Explorer injection, HKLM write, or admin requirement added.
+- Generated release artifacts are ignored and not staged.
+
+Validation:
+
+- `powershell -ExecutionPolicy Bypass -File .\scripts\package-release.ps1 -Version 0.1.0-preview`: passed.
+- Script output:
+  - Bundle name: `Dateview-0.1.0-preview-win-x64`
+  - Folder: `D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64`
+  - App folder: `D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64\Dateview`
+  - Zip: `D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64.zip`
+  - Zip bytes: `171284`
+- Zip structure check: `15` entries; required entries present after normalizing separators:
+  - `Dateview/ChinaTrayCalendar.Desktop.exe`
+  - `Dateview/ChinaTrayCalendar.Desktop.dll`
+  - `Dateview/ChinaTrayCalendar.Desktop.deps.json`
+  - `Dateview/ChinaTrayCalendar.Desktop.runtimeconfig.json`
+  - `Dateview/assets/holidays/cn/2025.json`
+  - `Dateview/assets/holidays/cn/2026.json`
+- `git status --short --ignored -- artifacts scripts .gitignore docs/P9_RELEASE_DISTRIBUTION_VALIDATION.md`: confirmed `artifacts/` is ignored.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+
+Release artifact/hash:
+
+- Bundle zip generated; SHA256 and manifest are planned for R3.
+
+Commit / push:
+
+- Pending R2 commit.
+
+Risk / blocked:
+
+- None for R2.

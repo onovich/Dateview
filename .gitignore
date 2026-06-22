@@ -10,3 +10,4 @@ TestResults/
 coverage/
 *.nupkg
 *.snupkg
+artifacts/
