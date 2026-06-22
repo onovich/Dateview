@@ -46,7 +46,7 @@ Pre-existing untracked root helper scripts are preserved and not staged:
 | Open animation feels calm/soft with no obvious bounce/shake | LIMITED | R2 exercised the real open path without JIT/crash and captured stable final frames. Subjective motion feel still needs human live observation because still screenshots cannot prove smoothness. Existing P12 code evidence remains `170 ms` opacity plus content scale/translate ease-out. |
 | Close animation feels calm/soft | LIMITED | R2 exercised tray toggle, Escape, and deactivation close without JIT/crash and captured hidden final states. Subjective motion feel still needs human live observation because still screenshots cannot prove smoothness. Existing P12 code evidence remains `140 ms` opacity plus content scale/translate ease-in. |
 | Second instance exits cleanly | PASS | R3 portable smoke launched a second instance from the extracted package; it exited with code `0` while the first instance remained running. |
-| No Dateview process remains after exit/cleanup | PASS | R2 invoked `退出` from the real tray right-click menu with no process remaining. R3 portable smoke force-cleaned the first process after second-instance validation and confirmed no remaining `ChinaTrayCalendar.Desktop` process. |
+| No Dateview process remains after exit/cleanup | PASS | R2 invoked `退出` from the real tray right-click menu with no process remaining. R3/R5 portable smoke force-cleaned the first process after second-instance validation and confirmed no remaining `ChinaTrayCalendar.Desktop` process. |
 | Settings/startup state is not changed or is restored | PASS | R2 checked `HKCU:\Software\Microsoft\Windows\CurrentVersion\Run` value `Dateview`; it remained absent before and after smoke. |
 
 ## Environment
@@ -85,17 +85,17 @@ Pre-existing untracked root helper scripts are preserved and not staged:
 
 ### R4 Buffer Repair
 
-- [ ] Use only if real desktop acceptance exposes a blocker or small checklist/docs clarification.
+- [x] Not used by design; no P12 blocker was found.
 
 ### R5 Final Acceptance
 
-- [ ] Run final `Validate.cmd`.
-- [ ] Run final `Package.cmd`.
-- [ ] Run final `package-release.ps1`.
-- [ ] Run final `git diff --check`.
-- [ ] Run final boundary scan.
-- [ ] Complete the final acceptance matrix.
-- [ ] Push all P13 commits.
+- [x] Run final `Validate.cmd`.
+- [x] Run final `Package.cmd`.
+- [x] Run final `package-release.ps1`.
+- [x] Run final `git diff --check`.
+- [x] Run final boundary scan.
+- [x] Complete the final acceptance matrix.
+- [x] Push all P13 commits.
 
 ## Round Log
 
@@ -279,8 +279,94 @@ Validation:
 
 Commit / push:
 
-- R3 package smoke document commit: pending.
+- R3 package smoke document commit: `d473975`, pushed to `origin/main`.
 
 Risk / blocked:
 
 - No blocker. R4 buffer is currently unused.
+
+### R4 - Buffer Repair
+
+Status: NOT USED BY DESIGN
+
+Reason:
+
+- R2 and R3 found no P12 blocker requiring a Desktop-only fix.
+- No runtime, Domain, Application, Infrastructure, or test code changed in P13.
+- Remaining limitations are acceptance/hardware or live-human-observation items, not implementation blockers.
+
+### R5 - Final Acceptance
+
+Status: PASS
+
+Scope:
+
+- Re-ran the final validation matrix.
+- Regenerated the final package and release bundle after the R3 evidence commit.
+- Re-ran portable package/process smoke against the final bundle.
+- Re-ran `git diff --check`, prohibited-boundary scan, and status checks.
+- Left generated artifacts ignored and uncommitted.
+
+Final validation:
+
+- Initial in-sandbox `Validate.cmd` attempt was blocked by sandbox access to `C:\Users\Administrator\AppData\Roaming\NuGet\NuGet.Config`.
+- Retried `Validate.cmd` outside the sandbox with approval: passed.
+- Test counts from final `Validate.cmd`: Domain `33`, Application `21`, Infrastructure `37`, Desktop `46`; all passed.
+- `Package.cmd`: passed.
+- `package-release.ps1`: passed.
+- `git diff --check`: passed.
+- Boundary scan over `src`, `tests`, and `scripts` for prohibited scope keywords (`HKEY_LOCAL_MACHINE`, `HKLM`, `SetWindowsHookEx`, `Shell_NotifyIcon`, telemetry, auto-update/autoupdate, installer/signing/public-release/upload/hook indicators): no matches.
+- Final status before this report update: `main...origin/main` clean except preserved untracked `BuildLatest.cmd` and `StartPreview.cmd`.
+
+Final package evidence:
+
+- Zip: `artifacts\release\Dateview-0.1.0-preview-win-x64.zip`.
+- Zip bytes: `176417`.
+- SHA256: `971e50b95bda6245a0f1ec0275b5b4d232801aab5b0ba4ca01b76521fe75abe6`.
+- SHA256 file: `971e50b95bda6245a0f1ec0275b5b4d232801aab5b0ba4ca01b76521fe75abe6  Dateview-0.1.0-preview-win-x64.zip`.
+- Release metadata `gitCommit`: `d473975`.
+- Release metadata `generatedAtUtc`: `2026-06-22T15:17:30.3068568+00:00`.
+- Release manifest files: `13`.
+- Holiday JSON parse, using explicit UTF-8: `2025.json` schema `1` / `CN` / `33` days; `2026.json` schema `1` / `CN` / `39` days.
+- Packaged executable associated icon: `32x32`.
+
+Final process smoke evidence:
+
+- Portable extraction temp path: `C:\Users\Administrator\AppData\Local\Temp\Dateview-P13-R5-20260622-231821`.
+- First instance PID: `2368`, responding, no main window title.
+- Second instance exit code: `0`.
+- After second-instance launch, first instance remained running and responding.
+- Cleanup stopped the first process; no `ChinaTrayCalendar.Desktop` process remained.
+- Temp extraction directory was removed after path safety verification.
+
+Final acceptance summary:
+
+- `PASS`: normal tray icon presence, Dateview-specific icon, right-click menu, left-click open, left-click close, reopen, Escape close, foregrounded outside/deactivation close, second-instance exit, process cleanup, startup state preservation, package integrity, portable process smoke, boundary scan.
+- `LIMITED`: tray overflow placement/click on this specific user profile because Dateview appears in the normal notification area, and subjective animation feel because screenshots/process checks cannot replace live human observation.
+- `FAIL`: none.
+- `NOT AVAILABLE`: none beyond the explicitly limited overflow-placement condition.
+
+Debug self-check:
+
+- Real user workflow covered: final handoff artifact, final package integrity, portable run, single-instance behavior, cleanup, and final validation gates.
+- Failure localization: no untriaged failure remains; limitations map to Windows notification-area user preference and live human animation review.
+- Evidence type: final validation commands, release metadata, portable process smoke, and boundary scan.
+- State cleanup: no Dateview process remained and the final temp extraction directory was removed.
+- Subjective observations: not overclaimed; animation remains `LIMITED` pending human live preview.
+
+Architecture self-check:
+
+- P13 remained validation/docs-only.
+- No code changes were made in Desktop, Domain, Application, Infrastructure, or tests.
+- No forbidden shell integration, hook, admin, online, telemetry, installer/signing, public release, upload, or HKLM scope was introduced.
+- Generated artifacts remain ignored and uncommitted.
+- Pre-existing untracked `BuildLatest.cmd` and `StartPreview.cmd` remain untouched and unstaged.
+
+Commit / push:
+
+- Final validation report commit: pending.
+
+Residual risks:
+
+- Tray overflow behavior still needs reproduction on a Windows profile where Dateview is actually in overflow.
+- Animation softness still needs a live human preview verdict; no crash, JIT popup, or obvious automated-state failure was observed.
