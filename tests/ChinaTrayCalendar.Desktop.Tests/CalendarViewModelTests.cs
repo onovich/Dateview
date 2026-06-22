@@ -16,6 +16,11 @@ public sealed class CalendarViewModelTests
             try
             {
                 CalendarPopupWindow window = new();
+                Assert.False(window.ShowInTaskbar);
+                Assert.Equal(System.Windows.WindowStyle.None, window.WindowStyle);
+                Assert.Equal(System.Windows.ResizeMode.NoResize, window.ResizeMode);
+                Assert.Equal(360, window.Width);
+                Assert.Equal(420, window.Height);
                 window.Close();
             }
             catch (Exception caughtException)

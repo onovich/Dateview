@@ -9,8 +9,14 @@
         MinHeight="420"
         MaxWidth="360"
         MaxHeight="420"
+        AllowsTransparency="True"
+        FontFamily="Segoe UI Variable, Microsoft YaHei UI"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        UseLayoutRounding="True"
+        WindowStyle="None"
         WindowStartupLocation="Manual"
         Background="Transparent">
     <Window.Resources>
@@ -48,7 +54,7 @@
 
     <Border Margin="8"
             Padding="16"
-            Background="#FFFDFDFD"
+            Background="#FFF9FAFB"
             BorderBrush="#1F000000"
             BorderThickness="1"
             CornerRadius="12">
