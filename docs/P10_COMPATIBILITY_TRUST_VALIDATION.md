@@ -62,9 +62,9 @@ Compatibility matrix:
 
 ### R2 Multi-Monitor And Taskbar Position Spot Check
 
-- [ ] Record physical multi-monitor result or limitation.
-- [ ] Record taskbar-position result or limitation.
-- [ ] Confirm placement tests provide geometry fallback evidence.
+- [x] Record physical multi-monitor result or limitation.
+- [x] Record taskbar-position result or limitation.
+- [x] Confirm placement tests provide geometry fallback evidence.
 
 ### R3 DPI And Scaling Spot Check
 
@@ -143,9 +143,80 @@ Release artifact/hash:
 
 Commit / push:
 
-- Pending R1 commit.
+- `abec3c6 compat: document P10 baseline matrix` pushed.
 
 Risk / blocked:
 
 - Physical multi-monitor hardware is not currently available.
 - Non-100% DPI is not currently active and has not been changed in R1.
+
+### R2 - Multi-Monitor And Taskbar Position Spot Check
+
+Status: PASS WITH LIMITATIONS
+
+Scope:
+
+- Reconfirmed the current environment exposes only one Windows Forms screen: `\\.\DISPLAY1`.
+- Reconfirmed the current taskbar edge is `Bottom`, with working area `0,0 2560x1392`.
+- Reviewed Desktop placement implementation and tests.
+- Ran focused Desktop placement tests for taskbar edge geometry.
+- Chose not to programmatically move the Windows taskbar because doing so would mutate the user's desktop state and is not required for a safe automated executor smoke.
+
+Physical multi-monitor result:
+
+- Not available on this machine.
+- Windows reports screen count `1`; therefore P10 cannot claim physical multi-monitor coverage.
+- The release risk remains a coverage limitation rather than a known placement failure.
+
+Taskbar position result:
+
+- Current physical taskbar position: bottom.
+- Alternate physical taskbar edges were not changed in this automated run.
+- Geometry fallback evidence covers bottom, top, left, right, and no-taskbar-edge working-area cases.
+
+Relevant implementation evidence:
+
+- `src\ChinaTrayCalendar.Desktop\PopupPlacement\PopupWindowPlacer.cs`
+  - Uses `Screen.FromPoint(clickPoint)` to select the monitor for the tray click point.
+  - Converts WPF popup size to physical pixels using `VisualTreeHelper.GetDpi`.
+  - Converts the final pixel location back to WPF DIPs.
+- `src\ChinaTrayCalendar.Desktop\PopupPlacement\PopupPlacementCalculator.cs`
+  - Detects taskbar edge by comparing screen bounds with working area.
+  - Clamps placement inside the working area.
+- `src\ChinaTrayCalendar.Desktop\ChinaTrayCalendar.Desktop.csproj`
+  - Declares `ApplicationHighDpiMode` as `PerMonitorV2`.
+
+Debug self-check:
+
+- Minimal fixture: one physical monitor with bottom taskbar is the only live hardware fixture currently available.
+- Failure localization: placement failures would localize to monitor selection, DPI conversion, taskbar-edge detection, or clamping math.
+- Coverage: bottom taskbar has live environment evidence; top/left/right/no-taskbar cases have deterministic geometry test evidence.
+- Limitation honesty: physical multi-monitor and alternate-edge taskbar behavior are not claimed as fully live-tested.
+
+Architecture self-check:
+
+- R2 changes documentation only.
+- Placement evidence stays in Desktop placement code/tests.
+- No Domain/Application/Infrastructure behavior changed.
+- No taskbar mutation, shell hook, Explorer injection, admin requirement, online service, telemetry, installer, signing, or HKLM write added.
+- Generated artifacts remain ignored.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R2 start.
+- `dotnet test tests\ChinaTrayCalendar.Desktop.Tests\ChinaTrayCalendar.Desktop.Tests.csproj --configuration Release --filter FullyQualifiedName~PopupPlacementCalculatorTests`: passed.
+  - `6` tests passed.
+  - Covered bottom, top, left, right, no-taskbar-edge, and invalid popup size cases.
+
+Release artifact/hash:
+
+- No new artifact generated in R2; R1 bundle remains the latest P10 script-generated baseline.
+
+Commit / push:
+
+- Pending R2 commit.
+
+Risk / blocked:
+
+- Physical multi-monitor spot check remains pending for hardware that exposes more than one display.
+- Physical alternate taskbar-edge spot checks remain pending for a safe manual desktop QA pass.
