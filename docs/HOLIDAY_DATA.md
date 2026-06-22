@@ -12,9 +12,14 @@ Dateview uses bundled offline holiday files under `assets/holidays/cn/{year}.jso
 
 ## MVP Coverage
 
-- 2025: planned bundled data.
-- 2026: planned bundled data.
+- 2025: bundled from `国务院办公厅关于2025年部分节假日安排的通知`.
+- 2026: bundled from `国务院办公厅关于2026年部分节假日安排的通知`.
 - 2027: placeholder only after official data exists.
+
+## Imported Sources
+
+- 2025: `https://www.gov.cn/zhengce/content/202411/content_6986382.htm`, published 2024-11-12.
+- 2026: `https://www.gov.cn/zhengce/content/202511/content_7047090.htm`, published 2025-11-04.
 
 ## Day Types
 
