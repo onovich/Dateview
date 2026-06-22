@@ -6,12 +6,20 @@ namespace ChinaTrayCalendar.Desktop;
 
 public partial class CalendarPopupWindow
 {
+    private readonly DispatcherTimer deactivationDismissTimer;
     private readonly DispatcherTimer deactivationSuppressionTimer;
     private bool suppressDeactivation;
 
     public CalendarPopupWindow()
     {
         InitializeComponent();
+
+        deactivationDismissTimer = new DispatcherTimer(
+            TimeSpan.FromMilliseconds(90),
+            DispatcherPriority.Normal,
+            OnDeactivationDismissTimerTick,
+            Dispatcher);
+        deactivationDismissTimer.Stop();
 
         deactivationSuppressionTimer = new DispatcherTimer(
             TimeSpan.FromMilliseconds(250),
@@ -21,9 +29,12 @@ public partial class CalendarPopupWindow
         deactivationSuppressionTimer.Stop();
     }
 
+    public event EventHandler? DismissRequested;
+
     public void SuppressDeactivationForTrayOpen()
     {
         suppressDeactivation = true;
+        deactivationDismissTimer.Stop();
         deactivationSuppressionTimer.Stop();
         deactivationSuppressionTimer.Start();
     }
@@ -35,7 +46,8 @@ public partial class CalendarPopupWindow
             return;
         }
 
-        Hide();
+        deactivationDismissTimer.Stop();
+        deactivationDismissTimer.Start();
     }
 
     private void OnPreviewKeyDown(object sender, InputKeyEventArgs e)
@@ -45,13 +57,25 @@ public partial class CalendarPopupWindow
             return;
         }
 
-        Hide();
+        RequestDismiss();
         e.Handled = true;
+    }
+
+    private void OnDeactivationDismissTimerTick(object? sender, EventArgs e)
+    {
+        deactivationDismissTimer.Stop();
+        RequestDismiss();
     }
 
     private void OnDeactivationSuppressionTimerTick(object? sender, EventArgs e)
     {
         suppressDeactivation = false;
         deactivationSuppressionTimer.Stop();
+    }
+
+    private void RequestDismiss()
+    {
+        deactivationDismissTimer.Stop();
+        DismissRequested?.Invoke(this, EventArgs.Empty);
     }
 }

@@ -37,15 +37,16 @@ public sealed class CalendarViewModelTests
     }
 
     [Fact]
-    public void CalendarPopupWindowHidesOnEscape()
+    public void CalendarPopupWindowRequestsDismissOnEscape()
     {
         Exception? exception = null;
-        bool? isVisibleAfterEscape = null;
+        int dismissRequestCount = 0;
         Thread thread = new(() =>
         {
             try
             {
                 CalendarPopupWindow window = new();
+                window.DismissRequested += (_, _) => dismissRequestCount++;
                 window.Show();
                 System.Windows.PresentationSource inputSource =
                     System.Windows.PresentationSource.FromDependencyObject(
@@ -60,7 +61,6 @@ public sealed class CalendarViewModelTests
                 {
                     RoutedEvent = System.Windows.Input.Keyboard.PreviewKeyDownEvent,
                 });
-                isVisibleAfterEscape = window.IsVisible;
                 window.Close();
             }
             catch (Exception caughtException)
@@ -74,7 +74,7 @@ public sealed class CalendarViewModelTests
         thread.Join();
 
         Assert.Null(exception);
-        Assert.False(isVisibleAfterEscape);
+        Assert.Equal(1, dismissRequestCount);
     }
 
     [Fact]

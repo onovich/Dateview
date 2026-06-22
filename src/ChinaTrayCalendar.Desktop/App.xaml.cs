@@ -21,6 +21,7 @@ public partial class App : System.Windows.Application
     private const string SingleInstanceMutexName = @"Local\ChinaTrayCalendar.Dateview";
 
     private readonly PopupAnimationService popupAnimationService = new();
+    private readonly PopupVisibilityCoordinator popupVisibilityCoordinator = new();
     private readonly PopupWindowPlacer popupWindowPlacer = new();
     private IAutoStartService? autoStartService;
     private SingleInstanceGuard? singleInstanceGuard;
@@ -58,7 +59,8 @@ public partial class App : System.Windows.Application
 
         popupWindow = new CalendarPopupWindow();
         calendarViewModel = CreateCalendarViewModel(settings.FirstDayOfWeek);
-        calendarViewModel.CloseRequested += (_, _) => HidePopup();
+        calendarViewModel.CloseRequested += (_, _) => BeginHidePopup();
+        popupWindow.DismissRequested += (_, _) => BeginHidePopup();
         popupWindow.DataContext = calendarViewModel;
         MainWindow = popupWindow;
 
@@ -191,13 +193,15 @@ public partial class App : System.Windows.Application
             return;
         }
 
-        if (popupWindow.IsVisible)
+        switch (popupVisibilityCoordinator.HandleTrayClick(popupWindow.IsVisible, clickPoint))
         {
-            HidePopup();
-            return;
+            case PopupToggleAction.Open:
+                ShowPopup(clickPoint);
+                break;
+            case PopupToggleAction.Close:
+                _ = HidePopupAsync(closeAlreadyStarted: true);
+                break;
         }
-
-        ShowPopup(clickPoint);
     }
 
     private void ShowPopup(DrawingPoint clickPoint)
@@ -214,9 +218,40 @@ public partial class App : System.Windows.Application
         popupAnimationService.PlayEntrance((Window)(object)popupWindow);
     }
 
-    private void HidePopup()
+    private void BeginHidePopup()
     {
-        popupWindow?.Hide();
+        _ = HidePopupAsync(closeAlreadyStarted: false);
+    }
+
+    private async Task HidePopupAsync(bool closeAlreadyStarted)
+    {
+        if (popupWindow is null)
+        {
+            return;
+        }
+
+        if (!closeAlreadyStarted && !popupVisibilityCoordinator.TryBeginClose(popupWindow.IsVisible))
+        {
+            return;
+        }
+
+        try
+        {
+            await popupAnimationService.PlayExitAsync((Window)(object)popupWindow);
+        }
+        finally
+        {
+            if (popupWindow.IsVisible)
+            {
+                popupWindow.Hide();
+            }
+
+            DrawingPoint? reopenPoint = popupVisibilityCoordinator.CompleteClose();
+            if (reopenPoint is not null)
+            {
+                ShowPopup(reopenPoint.Value);
+            }
+        }
     }
 
     private static CalendarViewModel CreateCalendarViewModel(DayOfWeek firstDayOfWeek)

@@ -57,9 +57,9 @@ Generated artifacts remain ignored and uncommitted. Pre-existing untracked root 
 
 ### R4 Tray Toggle Integration
 
-- [ ] Wire tray left-click visible state to animated close.
-- [ ] Keep Escape, close command, and deactivation paths working.
-- [ ] Cover repeated click/open/close behavior with tests or recorded smoke evidence.
+- [x] Wire tray left-click visible state to animated close.
+- [x] Keep Escape, close command, and deactivation paths working.
+- [x] Cover repeated click/open/close behavior with tests or recorded smoke evidence.
 
 ### R5 Buffer Repair
 
@@ -226,3 +226,68 @@ Commit / push:
 Risk / blocked:
 
 - Manual feel validation is deferred until R4/R6 after tray toggle integration uses the close animation.
+
+### R4 - Tray Toggle Integration
+
+Status: PASS WITH MANUAL VISUAL LIMITATION
+
+Scope:
+
+- Updated `CalendarPopupWindow` so Escape and deactivation raise `DismissRequested` instead of directly calling `Hide()`.
+- Added a short delayed deactivation-dismiss timer so a tray click can be handled as a toggle before outside-click dismissal wins.
+- Updated `App` to route view-model close, Escape, deactivation, and tray click close through `PopupAnimationService.PlayExitAsync`.
+- Added `PopupVisibilityCoordinator` and `PopupToggleAction` to keep Desktop popup shell state deterministic.
+- Implemented repeated tray-click behavior during close: queue the latest tray click point and reopen after the close animation completes.
+- Added coordinator tests for hidden click open, visible click close, repeated click during close, and duplicate close request handling.
+- Updated popup Escape test to verify `DismissRequested`.
+
+Debug self-check:
+
+- Smallest user-visible workflow covered: left-click tray opens when hidden, left-click tray while visible starts close, and another click during close deterministically reopens from the latest point after close completes.
+- Failure localization: toggle failures localize to `PopupVisibilityCoordinator`, `App` popup orchestration, `PopupAnimationService`, or `CalendarPopupWindow` dismiss events.
+- Open/close/repeated click/Escape/deactivation: coordinator tests cover click state transitions and repeated click; popup tests cover Escape request; App wiring routes view-model close/Escape/deactivation/tray close through the exit animation.
+- `Window.RenderTransform`: no `Window.RenderTransform` animation was added.
+- State cleanup: R4 process smoke stopped the test process and left no Dateview process running. It did not mutate settings, startup registry, display settings, or taskbar state.
+
+Architecture self-check:
+
+- R4 changes stay in Desktop window code, Desktop popup orchestration/state, and Desktop tests.
+- Domain/Application/Infrastructure remain unchanged.
+- Popup visibility/animation state remains in Desktop and is not moved into Domain/Application.
+- No Explorer/taskbar injection, global hook, Shell hook, admin requirement, HKLM write, online dependency, telemetry, installer/signing work, public release, or upload was added.
+- Pre-existing untracked `BuildLatest.cmd` and `StartPreview.cmd` remain untouched and unstaged.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean tracked tree at R4 start, with only pre-existing untracked `BuildLatest.cmd` and `StartPreview.cmd`.
+- Focused Desktop tests:
+  - Command: `dotnet test tests\ChinaTrayCalendar.Desktop.Tests\ChinaTrayCalendar.Desktop.Tests.csproj --configuration Release --filter "FullyQualifiedName~CalendarViewModelTests|FullyQualifiedName~PopupVisibilityCoordinatorTests|FullyQualifiedName~PopupAnimationServiceTests"`
+  - Result: passed, `16` tests.
+- `dotnet format Dateview.slnx`: ran to normalize line endings after source/test edits.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+  - Domain tests: `33` passed.
+  - Application tests: `21` passed.
+  - Infrastructure tests: `37` passed.
+  - Desktop tests: `46` passed.
+  - `dotnet format --verify-no-changes`: passed.
+- Process smoke:
+  - A stale Dateview preview process from `artifacts\release` was found before smoke and stopped to avoid single-instance interference.
+  - Exe: `src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windows\ChinaTrayCalendar.Desktop.exe`
+  - Primary process id: `22680`
+  - Primary remained alive after `3` seconds: `true`
+  - Second instance exit code: `0`
+  - Running Dateview process count after cleanup: `0`
+
+Manual smoke:
+
+- Automated system-tray icon clicking and visual animation feel inspection are not reliably available in this executor environment.
+- Strongest available evidence is focused Desktop state/animation/window tests plus process/single-instance smoke.
+- Final R6 will repeat package/release smoke and record the same limitation if interactive tray inspection remains unavailable.
+
+Commit / push:
+
+- This R4 section is committed by the R4 P12 toggle integration commit.
+
+Risk / blocked:
+
+- Human visual confirmation of tray icon appearance and animation feel is still recommended on a real desktop tray session.
