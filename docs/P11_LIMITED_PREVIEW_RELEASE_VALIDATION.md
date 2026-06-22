@@ -89,9 +89,9 @@ D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64\Datevi
 
 ### R4 Existing Docs Linkage
 
-- [ ] Link the handoff and feedback docs from existing docs where useful.
-- [ ] Avoid duplicating large instruction blocks.
-- [ ] Run `git diff --check`.
+- [x] Link the handoff and feedback docs from existing docs where useful.
+- [x] Avoid duplicating large instruction blocks.
+- [x] Run `git diff --check`.
 
 ### R5 Final Portable Bundle Smoke
 
@@ -266,3 +266,47 @@ Commit / push:
 Risk / blocked:
 
 - None for R3.
+
+### R4 - Existing Docs Linkage
+
+Status: PASS
+
+Scope:
+
+- Updated `README.md` with a short pointer to the preview handoff and feedback guides.
+- Updated `docs\RELEASE_NOTES.md` with the same short preview tester pointer.
+- Updated release notes so the current preview artifact hash reference points to this P11 validation report.
+- Updated `docs\TROUBLESHOOTING.md` with a short pointer to the feedback guide for limited preview reports.
+- Avoided duplicating the full handoff or feedback templates in existing docs.
+
+Debug self-check:
+
+- Smallest preview workflow covered: a tester reading README, release notes, or troubleshooting can find the P11 handoff and feedback guide without searching the repository.
+- Failure localization: existing docs now route run/handoff issues to `PREVIEW_RELEASE_HANDOFF.md` and report-quality issues to `PREVIEW_FEEDBACK_GUIDE.md`.
+- Hardware coverage: R4 preserves P10/P11's explicit hardware limitations and does not add broader coverage claims.
+- State cleanup: R4 did not launch the app, mutate settings, write startup registry values, change display settings, or alter the user desktop.
+- Generated artifacts: R4 did not generate or stage release artifacts.
+
+Architecture self-check:
+
+- R4 changes documentation only.
+- No runtime code, installer, signing, certificate, auto-update, telemetry, online API, Explorer/taskbar injection, Shell hook, HKLM write, or admin requirement was added.
+- Existing docs continue to describe the portable current-user offline preview.
+- The updates are links and a hash-reference correction, not a release strategy change.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R4 start.
+- `git diff --check`: passed.
+
+Release artifact/hash:
+
+- No new artifact generated in R4; R1 remains the latest P11 script-generated candidate evidence.
+
+Commit / push:
+
+- This R4 section is committed by the R4 P11 docs-linkage commit.
+
+Risk / blocked:
+
+- None for R4.

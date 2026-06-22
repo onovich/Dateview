@@ -66,6 +66,8 @@ Generated local artifacts include:<br/>**生成的本地产物包括：**
 
 These generated artifacts are ignored by git and should not be committed.<br/>**这些生成产物已被 git 忽略，不应提交到仓库。**
 
+For limited preview tester handoff and feedback intake, see `docs\PREVIEW_RELEASE_HANDOFF.md` and `docs\PREVIEW_FEEDBACK_GUIDE.md`.
+
 ## Use A Portable Bundle
 
 1. Download or copy `Dateview-0.1.0-preview-win-x64.zip` and the matching `.sha256.txt` file if it is provided.<br/>**下载或复制 `Dateview-0.1.0-preview-win-x64.zip`；如果同时提供 `.sha256.txt`，也一起保存。**

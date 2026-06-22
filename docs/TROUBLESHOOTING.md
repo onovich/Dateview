@@ -40,6 +40,7 @@
 - Treat those prompts as a trust decision: confirm the download source, compare the SHA256 hash, and keep Windows security features enabled.<br/>**请把这些提示视为信任决策：确认下载来源、对比 SHA256 哈希，并保持 Windows 安全功能开启。**
 - If the file source, hash, or warning details are unexpected, stop and do not run the executable.<br/>**如果文件来源、哈希或提示详情不符合预期，请停止操作，不要运行 exe。**
 - P10 documentation prepares the signing/installer decision, but it does not implement code signing or an installer.<br/>**P10 文档会准备签名/安装器决策材料，但不会实现代码签名或安装器。**
+- For limited preview reports, use `docs\PREVIEW_FEEDBACK_GUIDE.md` so the issue includes version, zip hash, Windows/display/taskbar details, and reproduction steps.
 
 ## Holiday Data
 
