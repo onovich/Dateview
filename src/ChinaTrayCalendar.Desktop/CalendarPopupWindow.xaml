@@ -10,6 +10,7 @@
         MaxWidth="360"
         MaxHeight="420"
         AllowsTransparency="True"
+        Deactivated="OnDeactivated"
         Focusable="True"
         FontFamily="Segoe UI Variable, Microsoft YaHei UI"
         PreviewKeyDown="OnPreviewKeyDown"

@@ -19,6 +19,7 @@ public partial class App : System.Windows.Application
     private SingleInstanceGuard? singleInstanceGuard;
     private TrayIconService? trayIconService;
     private CalendarPopupWindow? popupWindow;
+    private CalendarViewModel? calendarViewModel;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -34,23 +35,27 @@ public partial class App : System.Windows.Application
         }
 
         trayIconService = new TrayIconService(new NotifyIconFactory());
+        trayIconService.ExitRequested += OnTrayExitRequested;
         trayIconService.PrimaryClick += OnTrayIconPrimaryClick;
+        trayIconService.TodayRequested += OnTrayTodayRequested;
         trayIconService.Show();
 
         popupWindow = new CalendarPopupWindow();
-        CalendarViewModel viewModel = CreateCalendarViewModel();
-        viewModel.CloseRequested += (_, _) => HidePopup();
-        popupWindow.DataContext = viewModel;
+        calendarViewModel = CreateCalendarViewModel();
+        calendarViewModel.CloseRequested += (_, _) => HidePopup();
+        popupWindow.DataContext = calendarViewModel;
         MainWindow = popupWindow;
 
-        await viewModel.LoadAsync();
+        await calendarViewModel.LoadAsync();
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
         if (trayIconService is not null)
         {
+            trayIconService.ExitRequested -= OnTrayExitRequested;
             trayIconService.PrimaryClick -= OnTrayIconPrimaryClick;
+            trayIconService.TodayRequested -= OnTrayTodayRequested;
             trayIconService.Dispose();
         }
 
@@ -59,9 +64,22 @@ public partial class App : System.Windows.Application
         base.OnExit(e);
     }
 
+    private void OnTrayExitRequested(object? sender, EventArgs e)
+    {
+        Shutdown(exitCode: 0);
+    }
+
     private void OnTrayIconPrimaryClick(object? sender, TrayIconPrimaryClickEventArgs e)
     {
         TogglePopup(e.ScreenPoint);
+    }
+
+    private async void OnTrayTodayRequested(object? sender, EventArgs e)
+    {
+        if (calendarViewModel is not null)
+        {
+            await calendarViewModel.TodayCommand.ExecuteAsync();
+        }
     }
 
     private void TogglePopup(DrawingPoint clickPoint)

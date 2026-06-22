@@ -17,6 +17,12 @@ internal sealed class NotifyIconAdapter(NotifyIcon notifyIcon) : ITrayIcon
         set => notifyIcon.Icon = value;
     }
 
+    public ContextMenuStrip? ContextMenuStrip
+    {
+        get => notifyIcon.ContextMenuStrip;
+        set => notifyIcon.ContextMenuStrip = value;
+    }
+
     public string Text
     {
         get => notifyIcon.Text;

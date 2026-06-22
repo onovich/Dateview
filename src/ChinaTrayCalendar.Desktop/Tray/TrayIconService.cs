@@ -5,8 +5,6 @@ namespace ChinaTrayCalendar.Desktop.Tray;
 
 internal sealed class TrayIconService : IDisposable
 {
-    private const string TooltipText = "Dateview";
-
     private readonly ITrayIconFactory trayIconFactory;
     private readonly Func<Point> getCursorPosition;
     private ITrayIcon? trayIcon;
@@ -18,6 +16,10 @@ internal sealed class TrayIconService : IDisposable
     }
 
     public event EventHandler<TrayIconPrimaryClickEventArgs>? PrimaryClick;
+
+    public event EventHandler? ExitRequested;
+
+    public event EventHandler? TodayRequested;
 
     public bool IsVisible => trayIcon?.Visible == true;
 
@@ -36,6 +38,8 @@ internal sealed class TrayIconService : IDisposable
 
         trayIcon.MouseUp -= OnTrayIconMouseUp;
         trayIcon.Visible = false;
+        trayIcon.ContextMenuStrip?.Dispose();
+        trayIcon.ContextMenuStrip = null;
         trayIcon.Dispose();
         trayIcon = null;
     }
@@ -44,10 +48,37 @@ internal sealed class TrayIconService : IDisposable
     {
         ITrayIcon icon = trayIconFactory.Create();
         icon.Icon = SystemIcons.Application;
-        icon.Text = TooltipText;
+        icon.Text = DesktopStrings.AppName;
+        icon.ContextMenuStrip = CreateContextMenu();
         icon.MouseUp += OnTrayIconMouseUp;
 
         return icon;
+    }
+
+    private ContextMenuStrip CreateContextMenu()
+    {
+        ContextMenuStrip menu = new();
+        ToolStripMenuItem todayItem = new(DesktopStrings.TrayMenuToday);
+        todayItem.Click += (_, _) => TodayRequested?.Invoke(this, EventArgs.Empty);
+
+        ToolStripMenuItem settingsItem = new(DesktopStrings.TrayMenuSettings)
+        {
+            Enabled = false,
+        };
+        ToolStripMenuItem startWithWindowsItem = new(DesktopStrings.TrayMenuStartWithWindows)
+        {
+            Enabled = false,
+        };
+        ToolStripMenuItem exitItem = new(DesktopStrings.TrayMenuExit);
+        exitItem.Click += (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty);
+
+        menu.Items.Add(todayItem);
+        menu.Items.Add(settingsItem);
+        menu.Items.Add(startWithWindowsItem);
+        menu.Items.Add(new ToolStripSeparator());
+        menu.Items.Add(exitItem);
+
+        return menu;
     }
 
     private void OnTrayIconMouseUp(object? sender, MouseEventArgs e)

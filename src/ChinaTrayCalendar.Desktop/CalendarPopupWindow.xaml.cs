@@ -10,6 +10,11 @@ public partial class CalendarPopupWindow
         InitializeComponent();
     }
 
+    private void OnDeactivated(object? sender, EventArgs e)
+    {
+        Hide();
+    }
+
     private void OnPreviewKeyDown(object sender, InputKeyEventArgs e)
     {
         if (e.Key != InputKey.Escape)

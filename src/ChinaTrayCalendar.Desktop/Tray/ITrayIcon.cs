@@ -9,6 +9,8 @@ internal interface ITrayIcon : IDisposable
 
     Icon? Icon { get; set; }
 
+    ContextMenuStrip? ContextMenuStrip { get; set; }
+
     string Text { get; set; }
 
     bool Visible { get; set; }
