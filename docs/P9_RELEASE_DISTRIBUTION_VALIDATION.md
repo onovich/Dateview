@@ -61,10 +61,10 @@ artifacts\release\
 
 ### Version, Manifest, And Hash
 
-- [ ] Define the version source.
-- [ ] Generate a manifest or release metadata file.
-- [ ] Generate SHA256 hash data.
-- [ ] Confirm metadata does not include private local paths.
+- [x] Define the version source.
+- [x] Generate a manifest or release metadata file.
+- [x] Generate SHA256 hash data.
+- [x] Confirm metadata does not include private local paths.
 
 ### Documentation
 
@@ -146,7 +146,7 @@ Release artifact/hash:
 
 Commit / push:
 
-- Pending R1 commit.
+- `ad7798c release: document P9 distribution baseline` pushed.
 
 Risk / blocked:
 
@@ -220,8 +220,79 @@ Release artifact/hash:
 
 Commit / push:
 
-- Pending R2 commit.
+- `22ed5d3 release: add portable bundle script` pushed.
 
 Risk / blocked:
 
 - None for R2.
+
+### R3 - Version, Manifest, And Hash Metadata
+
+Status: PASS
+
+Scope:
+
+- Defined the release version source as `src\ChinaTrayCalendar.Desktop\ChinaTrayCalendar.Desktop.csproj` property `<Version>0.1.0-preview</Version>`.
+- Updated `scripts\package-release.ps1` so `-Version` remains an explicit override, while the default version comes from the Desktop project file.
+- Generated app-local `release-manifest.json` inside the portable `Dateview` folder before zipping.
+- Generated zip-side release metadata and SHA256 files under ignored `artifacts\release`.
+
+Generated files:
+
+- App manifest:
+
+```text
+artifacts\release\Dateview-0.1.0-preview-win-x64\Dateview\release-manifest.json
+```
+
+- Release metadata:
+
+```text
+artifacts\release\Dateview-0.1.0-preview-win-x64.release.json
+```
+
+- Zip hash:
+
+```text
+artifacts\release\Dateview-0.1.0-preview-win-x64.sha256.txt
+```
+
+Debug self-check:
+
+- Fresh publish path: the script reads the version from a checked-in project file and then runs the existing publish profile.
+- Failure localization: R3 failures are localized to project version lookup, publish/staging, manifest creation, zip creation, or SHA256 verification.
+- Coverage: the manifest includes every app file in the portable folder with relative paths, byte counts, and SHA256 hashes.
+- Real tray popup crash regression: `PopupAnimationService` now animates the popup content `UIElement` instead of assigning `RenderTransform` to the top-level WPF `Window`; if content is unavailable, the entrance animation falls back to opacity only. This prevents the `InvalidOperationException` JIT dialog from the real tray left-click popup path.
+
+Architecture self-check:
+
+- Version metadata is in the Desktop executable project, which owns packaging identity for the WPF app.
+- Release manifest/hash generation stays in `scripts\package-release.ps1` and ignored local artifacts.
+- No Domain/Application/Infrastructure business behavior changed.
+- No installer, auto-update, online service, telemetry, shell hook, Explorer injection, HKLM write, or admin requirement added.
+- Generated release artifacts are ignored and not staged.
+
+Validation:
+
+- `powershell -ExecutionPolicy Bypass -File .\scripts\package-release.ps1`: passed.
+- Bundle name: `Dateview-0.1.0-preview-win-x64`.
+- Zip: `D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64.zip`.
+- Zip bytes: `172432`.
+- Zip SHA256: `cf7cd17079cebb4d0f5b5d1e9952bab430d914caec5a85298b452e9143ba3c91`.
+- Hash file value matches a recalculated SHA256 of the zip.
+- Metadata and manifest checked for private path leakage; neither contains `D:\ToolProjects`.
+- Manifest file count: `13`.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+
+Release artifact/hash:
+
+- `artifacts\release\Dateview-0.1.0-preview-win-x64.zip`
+- `cf7cd17079cebb4d0f5b5d1e9952bab430d914caec5a85298b452e9143ba3c91`
+
+Commit / push:
+
+- Pending R3 commit.
+
+Risk / blocked:
+
+- None for R3.

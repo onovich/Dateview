@@ -20,6 +20,7 @@
     <ApplicationIcon>..\..\assets\icons\dateview.ico</ApplicationIcon>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <Version>0.1.0-preview</Version>
   </PropertyGroup>
 
 </Project>
