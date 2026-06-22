@@ -6,6 +6,7 @@
 
 执行程序员使用的完整 Goal 指南见：
 
+- [Dateview P12 Customer UX Polish Goal 模式执行指南](P12_CUSTOMER_UX_POLISH_GOAL_MODE_EXECUTION_GUIDE.md)
 - [Dateview P11 Limited Preview Release Goal 模式执行指南](P11_LIMITED_PREVIEW_RELEASE_GOAL_MODE_EXECUTION_GUIDE.md)
 - [Dateview P10 Compatibility And Trust Goal 模式执行指南](P10_COMPATIBILITY_TRUST_GOAL_MODE_EXECUTION_GUIDE.md)
 - [Dateview P9 Release Distribution Goal 模式执行指南](P9_RELEASE_DISTRIBUTION_GOAL_MODE_EXECUTION_GUIDE.md)
