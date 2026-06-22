@@ -55,7 +55,7 @@
         </Style>
     </Window.Resources>
 
-    <Border Margin="8"
+    <Border Margin="4"
             Padding="16"
             Background="#FFF9FAFB"
             BorderBrush="#1F000000"

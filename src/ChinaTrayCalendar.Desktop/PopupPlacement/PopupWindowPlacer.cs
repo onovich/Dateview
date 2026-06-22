@@ -6,7 +6,7 @@ namespace ChinaTrayCalendar.Desktop.PopupPlacement;
 
 internal sealed class PopupWindowPlacer
 {
-    private const double MarginDip = 8;
+    private const double MarginDip = 0;
 
     public void Place(CalendarPopupWindow window, Point clickPoint)
     {

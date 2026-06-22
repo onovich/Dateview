@@ -54,10 +54,10 @@ D:\ToolProjects\Dateview\src\ChinaTrayCalendar.Desktop\bin\Release\net10.0-windo
 
 ### Placement, DPI, And Visual Behavior
 
-- [ ] Confirm the popup opens near the taskbar edge, not centered on the screen.
-- [ ] Confirm the popup stays within the current monitor working area.
-- [ ] Confirm the popup appears on the monitor where the tray interaction occurred, when a multi-monitor setup is available.
-- [ ] Confirm placement remains correct on available display scale settings, or record the limitation if the environment cannot change DPI.
+- [x] Confirm the popup opens near the taskbar edge, not centered on the screen.
+- [x] Confirm the popup stays within the current monitor working area.
+- [x] Confirm the popup appears on the monitor where the tray interaction occurred, when a multi-monitor setup is available.
+- [x] Confirm placement remains correct on available display scale settings, or record the limitation if the environment cannot change DPI.
 - [ ] Confirm open and close animations feel like a short taskbar-adjacent panel transition.
 
 ### Settings, Startup, And Offline Data
@@ -231,4 +231,59 @@ Architecture self-check:
 - All R3 changes stayed in Desktop UI/tray/animation code and Desktop tests.
 - No Domain/Application business rules were changed or duplicated.
 - No Infrastructure registry/file/JSON behavior changed.
+- No shell hook, Explorer injection, admin requirement, online dependency, or third-party package was introduced.
+
+### R4 - Taskbar Edge, Monitor, DPI, And Placement QA
+
+Status: PASS
+
+Defect found and fixed:
+
+- The popup window was placed with an 8px outer placement margin while the root visual Border also had an 8px margin.
+- On the bottom taskbar this produced about a 16px visual gap from the taskbar edge, which missed the UX Fusion 2-6px visual edge target.
+- Fixed `PopupWindowPlacer` to use `0` outer placement margin and changed the popup root Border margin to `4`, keeping the outer window inside the working area while making the visible panel sit about 4px from the taskbar edge.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R4 start.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Validate.cmd`: passed.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed.
+
+Manual and smoke evidence:
+
+- Environment display data:
+  - Screen count: `1`
+  - Screen bounds: `{X=0,Y=0,Width=2560,Height=1440}`
+  - Working area: `{X=0,Y=0,Width=2560,Height=1392}`
+  - Popup DPI: `96`
+- Published executable placement smoke:
+  - Tray button rectangle: `2090,1392,32,48`
+  - Popup rectangle: `1926,972,360,420`
+  - Window bottom gap from working area: `0px`
+  - Visible Border bottom gap from working area: `4px`
+  - Popup inside working area: `true`
+  - Open attempts: `1`
+- Existing `PopupPlacementCalculatorTests` cover bottom, top, left, right, and no-taskbar working-area geometry.
+- Animation hardening from R3 remains active:
+  - Entrance opacity animation still applies to the window.
+  - Entrance translate animation applies to the popup content root rather than the WPF top-level Window.
+  - R4 published smoke did not produce JIT or animation errors.
+
+Environment limitation:
+
+- Multi-monitor QA could not be performed on this machine because only `DISPLAY1` is available.
+- Non-100% DPI scaling could not be changed safely during this automated round; R4 records 96 DPI live evidence and retains geometry coverage for monitor/taskbar edge cases.
+
+Debug self-check:
+
+- Minimal workflow covered in R4: published app opens the popup from the tray, popup appears at the bottom taskbar edge, remains inside the working area, and uses the current display.
+- Failure layer checked: Desktop placement calculator, Desktop WPF placement adapter, published executable on the actual Windows taskbar.
+- Success/failure cases covered: bottom taskbar placement, single-monitor limitation, 96 DPI evidence, working-area containment.
+- Registry/settings cleanup: R4 did not change settings or startup registry state.
+
+Architecture self-check:
+
+- R4 changes stayed in Desktop XAML and Desktop popup placement code.
+- Shared placement math remains in the existing Desktop placement helper and tests.
+- No Domain/Application/Infrastructure behavior changed.
 - No shell hook, Explorer injection, admin requirement, online dependency, or third-party package was introduced.
