@@ -58,6 +58,27 @@ public sealed class MonthGridBuilderTests
     }
 
     [Fact]
+    public void BuildMarksTodayFromExplicitDate()
+    {
+        DateOnly today = new(2026, 6, 22);
+
+        MonthGrid grid = builder.Build(new CalendarMonth(2026, 6), today);
+
+        CalendarDay todayCell = Assert.Single(grid.Days, day => day.IsToday);
+        Assert.Equal(today, todayCell.Date);
+    }
+
+    [Fact]
+    public void BuildMarksWeekendDays()
+    {
+        MonthGrid grid = builder.Build(new CalendarMonth(2026, 6));
+
+        Assert.True(GetDay(grid, new DateOnly(2026, 6, 6)).IsWeekend);
+        Assert.True(GetDay(grid, new DateOnly(2026, 6, 7)).IsWeekend);
+        Assert.False(GetDay(grid, new DateOnly(2026, 6, 8)).IsWeekend);
+    }
+
+    [Fact]
     public void BuildRejectsUnsupportedFirstDayOfWeek()
     {
         const DayOfWeek unsupportedDayOfWeek = (DayOfWeek)99;
@@ -73,5 +94,10 @@ public sealed class MonthGridBuilderTests
         Assert.Equal(MonthGrid.CellCount, grid.Days.Count);
         Assert.Equal(expectedFirstDate, grid.Days[0].Date);
         Assert.Equal(expectedLastDate, grid.Days[^1].Date);
+    }
+
+    private static CalendarDay GetDay(MonthGrid grid, DateOnly date)
+    {
+        return Assert.Single(grid.Days, day => day.Date == date);
     }
 }
