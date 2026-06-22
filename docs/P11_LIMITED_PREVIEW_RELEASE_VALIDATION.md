@@ -95,12 +95,12 @@ D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64\Datevi
 
 ### R5 Final Portable Bundle Smoke
 
-- [ ] Regenerate the portable bundle.
-- [ ] Verify zip and SHA256 sidecar match.
-- [ ] Extract and run from a temp non-repo path.
-- [ ] Confirm first instance remains alive and second instance exits `0`.
-- [ ] Confirm manifest and bundled holiday JSON parse.
-- [ ] Clean up temp extraction and Dateview processes.
+- [x] Regenerate the portable bundle.
+- [x] Verify zip and SHA256 sidecar match.
+- [x] Extract and run from a temp non-repo path.
+- [x] Confirm first instance remains alive and second instance exits `0`.
+- [x] Confirm manifest and bundled holiday JSON parse.
+- [x] Clean up temp extraction and Dateview processes.
 
 ### R6 Buffer Repair
 
@@ -310,3 +310,69 @@ Commit / push:
 Risk / blocked:
 
 - None for R4.
+
+### R5 - Final Portable Bundle Smoke
+
+Status: PASS
+
+Scope:
+
+- Ran `Package.cmd`.
+- Regenerated the portable release bundle with `scripts\package-release.ps1`.
+- Verified the generated `.sha256.txt` sidecar matches `Get-FileHash`.
+- Extracted the zip to a temporary non-repo path.
+- Verified required executable, manifest, and bundled holiday JSON files.
+- Parsed `2025.json` and `2026.json` as UTF-8 JSON from the extracted portable folder.
+- Launched the extracted executable, confirmed the first instance stayed alive, and confirmed a second launch exited with code `0`.
+- Stopped the app, removed the temporary extraction folder, and confirmed no Dateview process remained.
+
+Debug self-check:
+
+- Smallest preview workflow covered: the current zip can be verified, extracted outside the repository, run as a portable app, and cleaned up.
+- Failure localization: R5 separately covered package publish, bundle generation, hash sidecar, extraction, manifest contents, holiday JSON, primary process lifetime, second-instance behavior, and cleanup.
+- Hardware coverage: R5 is a package/process smoke under the current single-display/100% DPI environment; it does not claim physical multi-monitor or non-100% DPI coverage.
+- State cleanup: R5 did not toggle startup, write registry values, change settings, move taskbar settings, or change display scale. It stopped the test process and removed the temp extraction folder.
+- Generated artifacts: release artifacts remain under ignored `artifacts\release`.
+
+Architecture self-check:
+
+- R5 changes validation documentation only.
+- Portable execution uses existing app-relative assets and single-instance behavior.
+- No runtime code, installer, signing, certificate, auto-update, telemetry, online API, Explorer/taskbar injection, Shell hook, HKLM write, or admin requirement was added.
+- Cleanup verified no Dateview process remained after the smoke.
+
+Validation:
+
+- `C:\Users\Administrator\.codex\skills\project-git-workflow\scripts\git\Status.cmd`: clean at R5 start.
+- Running Dateview process check before package: none found.
+- `C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\Package.cmd`: passed.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\package-release.ps1`: passed.
+- Portable smoke from temp path: passed.
+  - Zip: `D:\ToolProjects\Dateview\artifacts\release\Dateview-0.1.0-preview-win-x64.zip`
+  - Zip bytes: `172464`
+  - Zip SHA256: `11d44e82e2a61970d9ea26fedc98570546dd2aab596ebe106e0cebc23aee01c4`
+  - SHA256 sidecar matched: `true`
+  - Metadata git commit: `98f8e61`
+  - Metadata version: `0.1.0-preview`
+  - Manifest file count: `13`
+  - Manifest git commit: `98f8e61`
+  - Temp root: `C:\Users\Administrator\AppData\Local\Temp\Dateview-P11R5-40db3c6fdcc54d9c996dd254073ebee0`
+  - `2025.json` days: `33`
+  - `2026.json` days: `39`
+  - Primary process id: `49936`
+  - Second instance exit code: `0`
+  - Temp root removed: `true`
+  - Running Dateview process count after cleanup: `0`
+
+Release artifact/hash:
+
+- `artifacts\release\Dateview-0.1.0-preview-win-x64.zip`
+- `11d44e82e2a61970d9ea26fedc98570546dd2aab596ebe106e0cebc23aee01c4`
+
+Commit / push:
+
+- This R5 section is committed by the R5 P11 portable smoke commit.
+
+Risk / blocked:
+
+- None for R5.
