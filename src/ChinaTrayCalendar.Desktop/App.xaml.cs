@@ -1,10 +1,12 @@
 using System.IO;
 using System.Windows;
 using ChinaTrayCalendar.Application.Calendars;
+using ChinaTrayCalendar.Desktop.PopupPlacement;
 using ChinaTrayCalendar.Desktop.Tray;
 using ChinaTrayCalendar.Desktop.ViewModels;
 using ChinaTrayCalendar.Infrastructure.Holidays;
 using ChinaTrayCalendar.Infrastructure.Time;
+using DrawingPoint = System.Drawing.Point;
 
 namespace ChinaTrayCalendar.Desktop;
 
@@ -12,6 +14,8 @@ public partial class App : System.Windows.Application
 {
     private const string SingleInstanceMutexName = @"Local\ChinaTrayCalendar.Dateview";
 
+    private readonly PopupAnimationService popupAnimationService = new();
+    private readonly PopupWindowPlacer popupWindowPlacer = new();
     private SingleInstanceGuard? singleInstanceGuard;
     private TrayIconService? trayIconService;
     private CalendarPopupWindow? popupWindow;
@@ -55,20 +59,27 @@ public partial class App : System.Windows.Application
         base.OnExit(e);
     }
 
-    private void OnTrayIconPrimaryClick(object? sender, EventArgs e)
+    private void OnTrayIconPrimaryClick(object? sender, TrayIconPrimaryClickEventArgs e)
     {
-        TogglePopup();
+        TogglePopup(e.ScreenPoint);
     }
 
-    private void TogglePopup()
+    private void TogglePopup(DrawingPoint clickPoint)
     {
-        if (popupWindow?.IsVisible == true)
+        if (popupWindow is null)
+        {
+            return;
+        }
+
+        if (popupWindow.IsVisible)
         {
             HidePopup();
             return;
         }
 
-        popupWindow?.Show();
+        popupWindowPlacer.Place(popupWindow, clickPoint);
+        popupWindow.Show();
+        popupAnimationService.PlayEntrance((Window)(object)popupWindow);
     }
 
     private void HidePopup()

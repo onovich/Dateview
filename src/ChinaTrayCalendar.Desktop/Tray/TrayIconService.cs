@@ -3,13 +3,21 @@ using System.Windows.Forms;
 
 namespace ChinaTrayCalendar.Desktop.Tray;
 
-internal sealed class TrayIconService(ITrayIconFactory trayIconFactory) : IDisposable
+internal sealed class TrayIconService : IDisposable
 {
     private const string TooltipText = "Dateview";
 
+    private readonly ITrayIconFactory trayIconFactory;
+    private readonly Func<Point> getCursorPosition;
     private ITrayIcon? trayIcon;
 
-    public event EventHandler? PrimaryClick;
+    public TrayIconService(ITrayIconFactory trayIconFactory, Func<Point>? getCursorPosition = null)
+    {
+        this.trayIconFactory = trayIconFactory ?? throw new ArgumentNullException(nameof(trayIconFactory));
+        this.getCursorPosition = getCursorPosition ?? (() => Cursor.Position);
+    }
+
+    public event EventHandler<TrayIconPrimaryClickEventArgs>? PrimaryClick;
 
     public bool IsVisible => trayIcon?.Visible == true;
 
@@ -46,7 +54,7 @@ internal sealed class TrayIconService(ITrayIconFactory trayIconFactory) : IDispo
     {
         if (e.Button == MouseButtons.Left)
         {
-            PrimaryClick?.Invoke(this, EventArgs.Empty);
+            PrimaryClick?.Invoke(this, new TrayIconPrimaryClickEventArgs(getCursorPosition()));
         }
     }
 }

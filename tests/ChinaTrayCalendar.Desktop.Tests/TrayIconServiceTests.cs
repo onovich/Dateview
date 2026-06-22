@@ -64,14 +64,20 @@ public sealed class TrayIconServiceTests
     public void LeftMouseUpRaisesPrimaryClick()
     {
         FakeTrayIconFactory factory = new();
-        using TrayIconService service = new(factory);
+        using TrayIconService service = new(factory, () => new Point(120, 840));
         int clickCount = 0;
-        service.PrimaryClick += (_, _) => clickCount++;
+        Point? screenPoint = null;
+        service.PrimaryClick += (_, e) =>
+        {
+            clickCount++;
+            screenPoint = e.ScreenPoint;
+        };
         service.Show();
 
         Assert.Single(factory.CreatedIcons).RaiseMouseUp(MouseButtons.Left);
 
         Assert.Equal(1, clickCount);
+        Assert.Equal(new Point(120, 840), screenPoint);
     }
 
     [Fact]
